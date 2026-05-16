@@ -56,6 +56,7 @@ _Note: directories not yet created can be added as features are built._
 ## References
 
 - **Project design & decisions:** [README.md](README.md) — design decisions, behavior specs, and project-specific notes
-- **What to build next:** [BACKLOG.md](BACKLOG.md) — read this to pick your task
+- **Active workbench:** [BACKLOG.md](BACKLOG.md) — current task (Doing) and next tasks (Up next)
+- **Long-term plan:** [ROADMAP.md](ROADMAP.md) — upcoming features; consult when pulling next work into BACKLOG
 - **How to ship:** [WORKFLOW.md](WORKFLOW.md) — commit, branching, and testing rules
 - **Past work:** [DONE.md](DONE.md) — consult only when prior context is relevant

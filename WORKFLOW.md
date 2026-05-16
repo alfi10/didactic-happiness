@@ -25,11 +25,11 @@ Process and shipping rules for this project.
 ```
 [ADD] Brief one-line summary
 
-Optional: additional context or explanation (max 2 sentences).
+Optional: one additional sentence for context.
 ```
 
 - Summary line (after prefix) should be concise and clear
-- Keep the total message to **no more than three sentences**
+- Keep the total message to **no more than 2 sentences** (summary + optional context line)
 - No multi-paragraph explanations
 
 **Example:**
@@ -37,7 +37,7 @@ Optional: additional context or explanation (max 2 sentences).
 ```
 [ADD] Player movement with arrow keys.
 
-Movement is smooth with 5px per frame. Sprite stays within screen bounds.
+Movement is smooth with 5px per frame and stays within screen bounds.
 ```
 
 ---
