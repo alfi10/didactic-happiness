@@ -4,15 +4,6 @@ Long-term feature plan. Agents: consult this when BACKLOG is empty or when pulli
 
 ---
 
-## Entities — Compartments
-
-- [ ] Design sprite partition scheme: 3×3 grid mapping to hull, crew, weapons regions
-- [ ] Create compartment data structure: list of `Compartment(name, x, y, width, height, system_type)`
-- [ ] Render compartments as visual overlays (colored rectangles or borders)
-- [ ] Link compartments to Player and Enemy classes
-
----
-
 ## Combat
 
 - [ ] Player selects target compartment on enemy ship (mouse click or keyboard navigation)

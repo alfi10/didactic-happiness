@@ -10,8 +10,8 @@ WINDOW_HEIGHT = 600
 FPS = 60
 
 PLAYER_X = 50
-ENEMY_X = WINDOW_WIDTH - 82
-SHIP_Y = WINDOW_HEIGHT // 2 - 16
+ENEMY_X = WINDOW_WIDTH - 170
+SHIP_Y = WINDOW_HEIGHT // 2 - 60
 
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("didactic-happiness")

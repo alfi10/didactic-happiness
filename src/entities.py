@@ -1,30 +1,46 @@
 import pygame
+from src.compartments import DEFAULT_LAYOUT, Compartment, SYSTEM_COLORS
 
-PLAYER_SIZE = 32
-ENEMY_SIZE = 32
+CELL_SIZE = 40
+SHIP_SIZE = CELL_SIZE * 3
 
 
-class Player(pygame.sprite.Sprite):
+class Ship(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.Surface((PLAYER_SIZE, PLAYER_SIZE))
-        self.image.fill((0, 150, 255))
-        self.rect = self.image.get_rect(topleft=(x, y))
         self.x = x
         self.y = y
+        self.compartments = []
+        self.image = pygame.Surface((SHIP_SIZE, SHIP_SIZE))
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self._build_compartments()
+        self._render_compartments()
+
+    def _build_compartments(self):
+        for i, (name, system_type) in enumerate(DEFAULT_LAYOUT):
+            row = i // 3
+            col = i % 3
+            compartment = Compartment(name, system_type, row, col)
+            self.compartments.append(compartment)
+
+    def _render_compartments(self):
+        self.image.fill((20, 20, 40))
+        for compartment in self.compartments:
+            x = compartment.col * CELL_SIZE
+            y = compartment.row * CELL_SIZE
+            color = SYSTEM_COLORS[compartment.system_type]
+            pygame.draw.rect(self.image, color, (x, y, CELL_SIZE, CELL_SIZE))
+            pygame.draw.rect(self.image, (40, 40, 60), (x, y, CELL_SIZE, CELL_SIZE), 1)
 
     def update(self):
         pass
 
 
-class Enemy(pygame.sprite.Sprite):
+class Player(Ship):
     def __init__(self, x, y):
-        super().__init__()
-        self.image = pygame.Surface((ENEMY_SIZE, ENEMY_SIZE))
-        self.image.fill((255, 100, 0))
-        self.rect = self.image.get_rect(topleft=(x, y))
-        self.x = x
-        self.y = y
+        super().__init__(x, y)
 
-    def update(self):
-        pass
+
+class Enemy(Ship):
+    def __init__(self, x, y):
+        super().__init__(x, y)

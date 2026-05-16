@@ -6,13 +6,15 @@ Agent workbench for **didactic-happiness**. **Doing** = current task. **Up next*
 
 ## Doing
 
-(Ready to pull next feature from ROADMAP.md)
+- [ ] Player selects target compartment on enemy ship (mouse click or keyboard navigation)
 
 ---
 
 ## Up next
 
-(Pull next feature from ROADMAP.md when both Doing tasks complete)
+- [ ] Player fires: accuracy roll (0–100 vs threshold) resolves immediately (hit or miss)
+- [ ] On hit: damage applied to selected compartment and enemy HP
+- [ ] Visual feedback: brief flash or color change on hit compartment
 
 ---
 
