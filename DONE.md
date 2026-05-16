@@ -8,3 +8,12 @@ Completed tasks. Archived for reference only; consult when prior work is specifi
 - [x] Create compartment data structure: list of `Compartment(name, x, y, width, height, system_type)`
 - [x] Render compartments as visual overlays (colored rectangles or borders)
 - [x] Link compartments to Player and Enemy classes
+
+## Combat
+
+- [x] Player selects target compartment on enemy ship (mouse click)
+- [x] Player fires: accuracy roll (0–100 vs threshold) resolves immediately (hit or miss)
+- [x] On hit: damage applied to selected compartment and enemy HP
+- [x] Visual feedback: brief flash on hit compartment
+- [x] Enemy turn: enemy selects random player compartment and fires back
+- [x] Accuracy system: RNG roll (0–100) against threshold
