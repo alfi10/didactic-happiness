@@ -6,19 +6,17 @@ A top-down 2D tactical space combat game.
 
 ## Concept
 
-**didactic-happiness** is a tactical RPG-lite space shooter where crew management and strategic positioning matter more than reflexes. You command a starship and must defeat enemy vessels by managing your crew's morale, upgrading your systems, and learning about your opponent through combat.
-
-Each decision counts: where to position your ship, which systems to prioritize, whether to push the advantage or consolidate morale. Victory is won through tactics, not twitch reflexes.
+**didactic-happiness** is a tactical turn-based space combat game inspired by FTL. You command a starship and must defeat enemy vessels by managing your crew's morale, upgrading your systems, and learning about your opponent through combat. Your ship is fixed on the left side of the screen; the enemy is displayed on the right. Each decision counts: which systems to prioritize, whether to target compartments or push for total destruction, how to manage crew morale. Victory is won through tactics, not reflexes.
 
 ---
 
-## Core Gameplay Loop
+## Core Gameplay Loop (Per Turn)
 
-1. **Prepare** — Position your ship on the tactical grid. Allocate crew to stations (weapons, shields, engines).
-2. **Engage** — Choose your targets and fire. Attack specific compartments of the enemy ship.
-3. **Respond** — The enemy attacks in turn. Accuracy and damage depend on crew morale, upgrades, and positioning.
+1. **Your Turn** — Select a target compartment on the enemy ship. Choose an action (fire at that compartment).
+2. **Fire & Resolve** — Your attack rolls for accuracy. On hit, damage applies to the target compartment and enemy HP.
+3. **Enemy Turn** — The enemy selects a target compartment on your ship and fires. Accuracy and damage apply based on their morale and upgrades.
 4. **Learn** — As combat progresses, you discover details about the enemy ship — its hull layout, morale level, upgrade tier. Information is a weapon.
-5. **Manage** — Between encounters (or during lulls), recover morale, purchase upgrades, and plan your next move.
+5. **Manage** — Each turn, crew morale drifts slightly (toward 50). Between encounters, purchase upgrades and plan your strategy.
 
 ---
 
@@ -33,14 +31,13 @@ Each decision counts: where to position your ship, which systems to prioritize, 
 Compartments reflect game state visually: damage darkens them, morale glows, destroyed systems vanish.
 
 ### Combat
-Shooting is **player-directed**, not automatic. You decide:
-- **When** to fire (once per turn, or based on action points)
-- **Where** to target (hull, weapons, crew station)
-- **How much ammo/energy** to commit
-
-**Accuracy** is computed per shot: base RNG roll + modifiers from crew morale, upgrades, and relative positioning. Miss or hit — both have narrative weight.
-
-**Damage** applies to the target compartment and the entity's HP. Destroying a compartment disables its system before destroying the whole ship.
+Combat is **turn-based and tactical**. Each turn:
+- **You act first:** select a target compartment on the enemy ship
+- **Accuracy** is computed: base RNG roll (0–100) vs. accuracy threshold, modified by your morale and upgrades
+- **On hit:** damage applies to the target compartment and enemy HP
+- **Visual feedback:** target compartment briefly highlights to show damage
+- **Enemy responds:** they select a random or scripted compartment on your ship and fire
+- **Accuracy calculation:** enemy accuracy is modified by their morale and upgrades
 
 ### Health
 Each entity has **HP** (hit points). Damage reduces it. When HP reaches 0, the entity is destroyed.
@@ -50,14 +47,14 @@ Each entity has **HP** (hit points). Damage reduces it. When HP reaches 0, the e
 ### Crew Morale
 **Morale** is a 0–100 value representing your crew's state. It affects:
 - **Accuracy:** higher morale = better hit chance
-- **Fire rate:** higher morale = faster or more actions per turn
-- **Action availability:** some actions are only available at high morale (risky maneuvers, overcharge)
+- **Damage:** higher morale = higher damage output
+- **Special actions:** some actions are only available at high morale (risky maneuvers, focus fire)
 
 **Events** change morale:
-- Taking damage: morale drops
-- Destroying enemy compartment: morale rises
-- Crew loss: morale drops significantly
-- Time spent idle: morale drifts toward 50 (neutral)
+- Taking damage: morale -= 10
+- Destroying enemy compartment: morale += 15
+- Crew loss: morale -= 25
+- Turn passage: morale drifts passively (+1 per turn if below 50, -1 per turn if above 50)
 
 ### Upgrades
 Two upgrade tracks:

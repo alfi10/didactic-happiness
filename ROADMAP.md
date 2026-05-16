@@ -15,12 +15,12 @@ Long-term feature plan. Agents: consult this when BACKLOG is empty or when pulli
 
 ## Combat
 
-- [ ] Implement `Projectile` class: position, velocity, collision detection
-- [ ] Shooting: on player input, spawn projectile from player position toward target
-- [ ] Hit detection: check projectile collision with enemy compartments
-- [ ] **Accuracy system:** RNG roll (0–100) against accuracy threshold (modified by morale and upgrades)
-- [ ] **Damage application:** on hit, reduce target compartment HP and entity HP
-- [ ] Projectile cleanup: remove projectile on hit or off-screen
+- [ ] Player selects target compartment on enemy ship (mouse click or keyboard navigation)
+- [ ] Player fires: accuracy roll (0–100 vs threshold) resolves immediately (hit or miss)
+- [ ] On hit: damage applied to selected compartment and enemy HP
+- [ ] Visual feedback: brief flash or color change on hit compartment
+- [ ] Enemy turn: enemy selects a random or scripted compartment and fires back
+- [ ] Accuracy system: RNG roll (0–100) against threshold (modified by morale and upgrades)
 
 ---
 
@@ -46,7 +46,7 @@ Long-term feature plan. Agents: consult this when BACKLOG is empty or when pulli
   - Accuracy modifier: +2% per 10 morale (50 morale = base, 100 morale = +10%)
   - Fire rate modifier: +1 action point per 25 morale (threshold-based: 25→+1, 50→+2, etc.)
   - Action gating: some actions only available if morale > threshold
-- [ ] Morale drift: passive recovery toward 50 over time (1 point per 10 seconds)
+- [ ] Morale drift: passive recovery toward 50 per turn (+1 per turn while below 50, -1 per turn while above 50)
 - [ ] Visual feedback: render morale bar
 
 ---

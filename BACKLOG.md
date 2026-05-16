@@ -6,14 +6,15 @@ Agent workbench for **didactic-happiness**. **Doing** = current task. **Up next*
 
 ## Doing
 
-- [ ] Add movement input for Player (arrow keys or WASD)
+- [ ] Position Player ship statically on left side, Enemy ship on right side of screen
 
 ---
 
 ## Up next
 
-- [ ] Implement Player movement with arrow keys (clamped to screen bounds)
-- [ ] Test smooth movement (no stuttering, respects FPS cap)
+- [ ] Implement turn state machine (`PLAYER_TURN` and `ENEMY_TURN` states)
+- [ ] Add "End Turn" input (Space or Enter key) that advances state
+- [ ] Display turn state on screen ("Your Turn" / "Enemy Turn")
 
 ---
 
