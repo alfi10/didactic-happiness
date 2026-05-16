@@ -6,15 +6,13 @@ Agent workbench for **didactic-happiness**. **Doing** = current task. **Up next*
 
 ## Doing
 
-- [ ] Position Player ship statically on left side, Enemy ship on right side of screen
+(Ready to pull next feature from ROADMAP.md)
 
 ---
 
 ## Up next
 
-- [ ] Implement turn state machine (`PLAYER_TURN` and `ENEMY_TURN` states)
-- [ ] Add "End Turn" input (Space or Enter key) that advances state
-- [ ] Display turn state on screen ("Your Turn" / "Enemy Turn")
+(Pull next feature from ROADMAP.md when both Doing tasks complete)
 
 ---
 
