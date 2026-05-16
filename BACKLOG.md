@@ -6,24 +6,14 @@ Prioritized task list for **didactic-happiness**. Read the **Doing** section to 
 
 ## Doing
 
-- [ ] Create `main.py` with pygame init, game loop, and window (title: "didactic-happiness", resolution: 800×600)
+- [ ] Add movement input for Player (arrow keys or WASD)
 
 ---
 
-## Up next — Core Setup
+## Up next — Entities (Movement)
 
-- [ ] Create `requirements.txt` with `pygame>=2.0`
-- [ ] Verify game window launches and closes cleanly
-
----
-
-## Up next — Entities
-
-- [ ] Create `Player` class: inherits `pygame.sprite.Sprite`, has position, image, and `update()` method
-- [ ] Create `Enemy` class: inherits `pygame.sprite.Sprite`, has position, image, and `update()` method
-- [ ] Create placeholder sprites (32×32 squares or simple rectangles) for testing
-- [ ] Register both in a `pygame.sprite.Group` and render each frame in the main loop
-- [ ] Verify both entities render on-screen without flickering
+- [ ] Implement Player movement with arrow keys (up/down/left/right, clamped to screen bounds)
+- [ ] Test smooth movement (no stuttering, respects FPS cap)
 
 ---
 
