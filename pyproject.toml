@@ -1,0 +1,8 @@
+[project]
+name = "didactic-happiness"
+version = "0.1.0"
+description = "A top-down 2D tactical space combat game"
+requires-python = ">=3.12"
+dependencies = [
+    "pygame>=2.6.1",
+]
