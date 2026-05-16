@@ -1,4 +1,4 @@
-# Backlog
+# Workbench
 
 Agent workbench for **didactic-happiness**. **Doing** = current task. **Up next** = immediately actionable tasks. When both sections are empty, pull the next feature from [ROADMAP.md](ROADMAP.md).
 
