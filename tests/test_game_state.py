@@ -1,4 +1,4 @@
-from src.game_state import GameState, TurnState
+from src.game_state import GameState, TurnState, ENEMY_ACQUIRE_MS, ENEMY_FIRE_MS
 
 
 def test_initial_turn_is_player():
@@ -31,3 +31,37 @@ def test_clear_selection_resets():
     state.select("fake")
     state.clear_selection()
     assert state.selected_compartment is None
+
+
+def test_turn_count_starts_zero():
+    state = GameState()
+    assert state.turn_count == 0
+
+
+def test_increment_turn_count():
+    state = GameState()
+    state.increment_turn_count()
+    state.increment_turn_count()
+    assert state.turn_count == 2
+
+
+def test_enemy_target_acquired_threshold():
+    state = GameState()
+    state.start_enemy_turn("target", current_time=0)
+    assert not state.enemy_target_acquired(ENEMY_ACQUIRE_MS - 1)
+    assert state.enemy_target_acquired(ENEMY_ACQUIRE_MS)
+
+
+def test_enemy_ready_to_fire_threshold():
+    state = GameState()
+    state.start_enemy_turn("target", current_time=0)
+    assert not state.enemy_ready_to_fire(ENEMY_FIRE_MS - 1)
+    assert state.enemy_ready_to_fire(ENEMY_FIRE_MS)
+
+
+def test_clear_enemy_turn_resets():
+    state = GameState()
+    state.start_enemy_turn("target", current_time=500)
+    state.clear_enemy_turn()
+    assert state.enemy_target is None
+    assert state.enemy_turn_start == 0

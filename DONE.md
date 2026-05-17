@@ -48,3 +48,19 @@ Completed tasks. Archived for reference only; consult when prior work is specifi
 
 - [x] Per-type destruction bonus damage dict: HULL 10, CREW 10, CORE 20, WEAPONS 5
 - [x] Destroyed weapons compartments apply -15% accuracy penalty (stacking)
+
+## Enemy Intelligence
+
+- [x] Compartments have `revealed` flag (default True, Enemy overrides to False)
+- [x] Unrevealed compartments render in gray
+- [x] Hits reveal the struck compartment
+- [x] Enemy HP hidden before turn 5
+- [x] Enemy HP shown bracketed (rounded up to nearest 20) on turns 5–9
+- [x] Enemy HP shown precisely from turn 10 onward
+- [x] Turn count tracked in GameState
+
+## Combat UX
+
+- [x] "Fire (space)" button rendered at screen center: bright red with target, dim gray without, invisible during enemy turn
+- [x] Enemy turn paced over 2 seconds: 1s acquiring (no indicator), 1s target locked (red border), then fire
+- [x] CombatSystem.pick_enemy_target split from enemy_attack for staged resolution

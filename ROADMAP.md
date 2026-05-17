@@ -6,6 +6,8 @@ Long-term feature plan. Agents: consult this when BACKLOG is empty or when pulli
 
 ## Upgrades
 
+**Note:** Upgrades is on hold until the game supports non-combat screens (shop, between-encounter view). Re-evaluate when the project gains a screen state machine — without somewhere to spend currency, upgrades have no place to live.
+
 - [ ] Create `Upgrade` data structure: `name`, `upgrade_type` (crew / ship), `effect_key` (accuracy, fire_rate, hull_hp), `effect_value`, `cost`
 - [ ] Create upgrade database: list of 3–4 crew upgrades and 3–4 ship upgrades
 - [ ] **Upgrade application:** create `apply_upgrade(entity, upgrade)` function
@@ -13,15 +15,3 @@ Long-term feature plan. Agents: consult this when BACKLOG is empty or when pulli
   - Ship upgrades modify entity attributes (max_hp, damage_output)
 - [ ] Store applied upgrades on entity to prevent double-application
 - [ ] UI: display available upgrades and current upgrades (text-based initially)
-
----
-
-## Enemy Intelligence
-
-- [ ] **Hidden state:** compartments start with `revealed=False`
-- [ ] **Revelation triggers:**
-  - On hit: reveal the compartment that was struck
-  - Time in combat: reveal enemy morale and overall HP after 5 turns
-  - Specific scan action: reveal all compartments (costs action point, high morale requirement)
-- [ ] **Display:** render revealed compartments normally; hidden compartments as "???" or obscured
-- [ ] Information persistence: keep revealed state across the entire encounter

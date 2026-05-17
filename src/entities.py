@@ -4,6 +4,7 @@ from src.compartments import (
     Compartment,
     SystemType,
     SYSTEM_COLORS,
+    HIDDEN_COMPARTMENT_COLOR,
     WEAPONS_DESTROYED_ACCURACY_PENALTY,
     dimmed,
 )
@@ -68,8 +69,11 @@ class Ship(pygame.sprite.Sprite):
         for compartment in self.compartments:
             x = compartment.col * CELL_SIZE
             y = compartment.row * CELL_SIZE
-            base_color = SYSTEM_COLORS[compartment.system_type]
-            color = base_color if compartment.active else dimmed(base_color)
+            if not compartment.revealed:
+                color = HIDDEN_COMPARTMENT_COLOR
+            else:
+                base_color = SYSTEM_COLORS[compartment.system_type]
+                color = base_color if compartment.active else dimmed(base_color)
             pygame.draw.rect(self.image, color, (x, y, CELL_SIZE, CELL_SIZE))
             pygame.draw.rect(self.image, (40, 40, 60), (x, y, CELL_SIZE, CELL_SIZE), 1)
 
@@ -88,3 +92,6 @@ class Player(Ship):
 class Enemy(Ship):
     def __init__(self, x, y):
         super().__init__(x, y)
+        for compartment in self.compartments:
+            compartment.revealed = False
+        self.refresh()

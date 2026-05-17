@@ -18,6 +18,10 @@ class Compartment:
     hp: int = 20
     max_hp: int = 20
     active: bool = True
+    revealed: bool = True
+
+
+HIDDEN_COMPARTMENT_COLOR = (70, 70, 80)
 
 
 SYSTEM_COLORS = {

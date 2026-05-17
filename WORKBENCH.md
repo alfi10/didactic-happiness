@@ -12,7 +12,7 @@ Agent workbench for **didactic-happiness**. **Doing** = current task. **Up next*
 
 ## Up next
 
-(Crew & Morale + per-type destruction effects complete. Next: Upgrades.)
+(Enemy Intelligence + pacing/UX complete. Upgrades is deferred until non-combat screens exist — see ROADMAP note.)
 
 ---
 
