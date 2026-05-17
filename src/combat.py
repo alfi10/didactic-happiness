@@ -7,12 +7,16 @@ class CombatSystem:
     BASE_DAMAGE = 5
 
     @staticmethod
-    def fire(target_compartment: Compartment) -> tuple[bool, int]:
+    def fire(target_compartment: Compartment, target_ship=None) -> tuple[bool, int]:
         roll = random.randint(0, 100)
         hit = roll <= CombatSystem.BASE_ACCURACY
         damage = CombatSystem.BASE_DAMAGE if hit else 0
         if hit:
             target_compartment.hp = max(0, target_compartment.hp - damage)
+            if target_compartment.hp == 0:
+                target_compartment.active = False
+            if target_ship is not None:
+                target_ship.take_damage(damage)
         return hit, damage
 
     @staticmethod
@@ -21,5 +25,5 @@ class CombatSystem:
         if not active_compartments:
             return None, False, 0
         target = random.choice(active_compartments)
-        hit, damage = CombatSystem.fire(target)
+        hit, damage = CombatSystem.fire(target, player)
         return target, hit, damage

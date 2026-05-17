@@ -47,6 +47,17 @@ def compartment_screen_rect(ship, compartment):
     y = ship.rect.y + compartment.row * CELL_SIZE
     return pygame.Rect(x, y, CELL_SIZE, CELL_SIZE)
 
+def draw_hp_bar(surface, ship, label):
+    bar_width = SHIP_SIZE
+    bar_height = 8
+    x = ship.rect.x
+    y = ship.rect.y - 20
+    ratio = ship.hp / ship.max_hp if ship.max_hp else 0
+    pygame.draw.rect(surface, (60, 60, 60), (x, y, bar_width, bar_height))
+    pygame.draw.rect(surface, (200, 60, 60), (x, y, int(bar_width * ratio), bar_height))
+    label_surf = small_font.render(f"{label} {ship.hp}/{ship.max_hp}", True, (200, 200, 200))
+    surface.blit(label_surf, (x, y - 18))
+
 hovered_compartment = None
 current_time = 0
 
@@ -68,7 +79,7 @@ while running:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and game_state.is_player_turn():
                 if game_state.selected_compartment:
-                    hit, damage = combat.fire(game_state.selected_compartment)
+                    hit, damage = combat.fire(game_state.selected_compartment, enemy)
                     if hit:
                         game_state.register_hit(game_state.selected_compartment, current_time)
                     game_state.clear_selection()
@@ -82,6 +93,11 @@ while running:
     sprites.update()
     screen.fill((20, 20, 40))
     sprites.draw(screen)
+
+    if player.alive():
+        draw_hp_bar(screen, player, "Player")
+    if enemy.alive():
+        draw_hp_bar(screen, enemy, "Enemy")
 
     if game_state.last_hit_compartment and current_time - game_state.last_hit_time < 400:
         hit_rect = compartment_screen_rect(

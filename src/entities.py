@@ -3,18 +3,29 @@ from src.compartments import DEFAULT_LAYOUT, Compartment, SYSTEM_COLORS
 
 CELL_SIZE = 40
 SHIP_SIZE = CELL_SIZE * 3
+DEFAULT_SHIP_HP = 100
 
 
 class Ship(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, hp=DEFAULT_SHIP_HP):
         super().__init__()
         self.x = x
         self.y = y
+        self.hp = hp
+        self.max_hp = hp
         self.compartments = []
         self.image = pygame.Surface((SHIP_SIZE, SHIP_SIZE))
         self.rect = self.image.get_rect(topleft=(x, y))
         self._build_compartments()
         self._render_compartments()
+
+    def take_damage(self, amount):
+        self.hp = max(0, self.hp - amount)
+        if self.hp == 0:
+            self.kill()
+
+    def is_destroyed(self):
+        return self.hp == 0
 
     def _build_compartments(self):
         for i, (name, system_type) in enumerate(DEFAULT_LAYOUT):

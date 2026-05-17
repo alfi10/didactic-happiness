@@ -4,28 +4,6 @@ Long-term feature plan. Agents: consult this when BACKLOG is empty or when pulli
 
 ---
 
-## Combat
-
-- [ ] Player selects target compartment on enemy ship (mouse click or keyboard navigation)
-- [ ] Player fires: accuracy roll (0–100 vs threshold) resolves immediately (hit or miss)
-- [ ] On hit: damage applied to selected compartment and enemy HP
-- [ ] Visual feedback: brief flash or color change on hit compartment
-- [ ] Enemy turn: enemy selects a random or scripted compartment and fires back
-- [ ] Accuracy system: RNG roll (0–100) against threshold (modified by morale and upgrades)
-
----
-
-## Health
-
-- [ ] Add `hp` and `max_hp` attributes to Player and Enemy
-- [ ] Add `health()` method to reduce HP (used by damage system)
-- [ ] Destruction trigger: when `hp <= 0`, call `kill()` on entity
-- [ ] **Compartment HP:** each compartment has its own `hp` and `max_hp`
-- [ ] **System disabling:** when compartment HP reaches 0, disable its associated system (e.g., weapons system can't fire)
-- [ ] Visual feedback: render HP bars for player and enemy
-
----
-
 ## Crew & Morale
 
 - [ ] Add `morale` attribute (0–100) to Player entity

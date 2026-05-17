@@ -17,3 +17,12 @@ Completed tasks. Archived for reference only; consult when prior work is specifi
 - [x] Visual feedback: brief flash on hit compartment
 - [x] Enemy turn: enemy selects random player compartment and fires back
 - [x] Accuracy system: RNG roll (0–100) against threshold
+
+## Health
+
+- [x] Add `hp` and `max_hp` attributes to Player and Enemy (ship-level HP)
+- [x] Add `take_damage(amount)` method on Ship that reduces HP
+- [x] Destruction trigger: when ship `hp <= 0`, call `kill()` on entity
+- [x] System disabling: when compartment HP reaches 0, set `active=False`
+- [x] Visual feedback: render HP bars above each ship
+- [x] Wire combat damage into ship HP
