@@ -14,9 +14,10 @@ class CombatSystem:
 
     @staticmethod
     def fire(target_compartment: Compartment, target_ship=None, attacker_ship=None) -> tuple[bool, int]:
-        threshold = CombatSystem.BASE_ACCURACY
         if attacker_ship is not None:
-            threshold += attacker_ship.accuracy_modifier()
+            threshold = attacker_ship.base_accuracy + attacker_ship.accuracy_modifier()
+        else:
+            threshold = CombatSystem.BASE_ACCURACY
 
         roll = random.randint(0, 100)
         hit = roll <= threshold

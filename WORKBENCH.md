@@ -12,7 +12,7 @@ Agent workbench for **didactic-happiness**. **Doing** = current task. **Up next*
 
 ## Up next
 
-(Enemy Intelligence + pacing/UX complete. Upgrades is deferred until non-combat screens exist — see ROADMAP note.)
+(Combat polish complete. Upgrades remains deferred — see ROADMAP note.)
 
 ---
 

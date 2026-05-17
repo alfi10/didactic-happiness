@@ -65,3 +65,16 @@ def test_clear_enemy_turn_resets():
     state.clear_enemy_turn()
     assert state.enemy_target is None
     assert state.enemy_turn_start == 0
+
+
+def test_debug_mode_starts_disabled():
+    state = GameState()
+    assert state.debug_mode is False
+
+
+def test_toggle_debug_flips_flag():
+    state = GameState()
+    assert state.toggle_debug() is True
+    assert state.debug_mode is True
+    assert state.toggle_debug() is False
+    assert state.debug_mode is False

@@ -91,3 +91,23 @@ def test_display_hp_ratio_bracketed_5_to_9():
 
 def test_display_hp_ratio_precise_from_turn_10():
     assert display_hp_ratio(73, 100, 10) == 0.73
+
+
+def test_force_reveal_default_false():
+    enemy = Enemy(0, 0)
+    assert enemy.force_reveal is False
+
+
+def test_force_reveal_overrides_render_without_changing_state():
+    enemy = Enemy(0, 0)
+    enemy.force_reveal = True
+    enemy.refresh()
+    assert all(not c.revealed for c in enemy.compartments)
+
+
+def test_enemy_has_lower_base_accuracy():
+    enemy = Enemy(0, 0)
+    player = Player(0, 0)
+    assert enemy.base_accuracy < player.base_accuracy
+    assert enemy.base_accuracy == 40
+    assert player.base_accuracy == 70

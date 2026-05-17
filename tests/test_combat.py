@@ -145,3 +145,25 @@ def test_attacker_low_morale_reduces_accuracy(monkeypatch):
     comp = target_ship.compartments[0]
     hit, _ = CombatSystem.fire(comp, target_ship, attacker)
     assert hit is False
+
+
+def test_per_ship_base_accuracy_used(monkeypatch):
+    from src.entities import Player, Enemy
+    monkeypatch.setattr(random, "randint", lambda a, b: 60)
+    monkeypatch.setattr(random, "random", lambda: 0.99)
+    player = Player(0, 0)
+    enemy = Enemy(0, 0)
+    target_comp = enemy.compartments[0]
+    hit, _ = CombatSystem.fire(target_comp, enemy, player)
+    assert hit is True
+
+
+def test_enemy_low_base_accuracy(monkeypatch):
+    from src.entities import Player, Enemy
+    monkeypatch.setattr(random, "randint", lambda a, b: 50)
+    monkeypatch.setattr(random, "random", lambda: 0.99)
+    player = Player(0, 0)
+    enemy = Enemy(0, 0)
+    target_comp = player.compartments[0]
+    hit, _ = CombatSystem.fire(target_comp, player, enemy)
+    assert hit is False

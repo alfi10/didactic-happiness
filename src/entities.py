@@ -15,16 +15,20 @@ DEFAULT_SHIP_HP = 100
 DEFAULT_MORALE = 50
 MAX_MORALE = 100
 MORALE_BASELINE = 50
+PLAYER_BASE_ACCURACY = 70
+ENEMY_BASE_ACCURACY = 40
 
 
 class Ship(pygame.sprite.Sprite):
-    def __init__(self, x, y, hp=DEFAULT_SHIP_HP):
+    def __init__(self, x, y, hp=DEFAULT_SHIP_HP, base_accuracy=PLAYER_BASE_ACCURACY):
         super().__init__()
         self.x = x
         self.y = y
         self.hp = hp
         self.max_hp = hp
         self.morale = DEFAULT_MORALE
+        self.base_accuracy = base_accuracy
+        self.force_reveal = False
         self.compartments = []
         self.image = pygame.Surface((SHIP_SIZE, SHIP_SIZE))
         self.rect = self.image.get_rect(topleft=(x, y))
@@ -69,7 +73,8 @@ class Ship(pygame.sprite.Sprite):
         for compartment in self.compartments:
             x = compartment.col * CELL_SIZE
             y = compartment.row * CELL_SIZE
-            if not compartment.revealed:
+            visible = compartment.revealed or self.force_reveal
+            if not visible:
                 color = HIDDEN_COMPARTMENT_COLOR
             else:
                 base_color = SYSTEM_COLORS[compartment.system_type]
@@ -91,7 +96,7 @@ class Player(Ship):
 
 class Enemy(Ship):
     def __init__(self, x, y):
-        super().__init__(x, y)
+        super().__init__(x, y, base_accuracy=ENEMY_BASE_ACCURACY)
         for compartment in self.compartments:
             compartment.revealed = False
         self.refresh()

@@ -19,6 +19,7 @@ class GameState:
         self.turn_count = 0
         self.enemy_target = None
         self.enemy_turn_start = 0
+        self.debug_mode = False
 
     def next_turn(self):
         if self.turn_state == TurnState.PLAYER_TURN:
@@ -58,3 +59,7 @@ class GameState:
 
     def increment_turn_count(self):
         self.turn_count += 1
+
+    def toggle_debug(self):
+        self.debug_mode = not self.debug_mode
+        return self.debug_mode

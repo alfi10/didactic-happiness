@@ -17,6 +17,16 @@ SHIP_Y = WINDOW_HEIGHT // 2 - 60
 
 FIRE_BUTTON_WIDTH = 160
 FIRE_BUTTON_HEIGHT = 44
+FIRE_BUTTON_CENTER_Y = WINDOW_HEIGHT - 70
+
+
+def fire_button_rect():
+    return pygame.Rect(
+        WINDOW_WIDTH // 2 - FIRE_BUTTON_WIDTH // 2,
+        FIRE_BUTTON_CENTER_Y - FIRE_BUTTON_HEIGHT // 2,
+        FIRE_BUTTON_WIDTH,
+        FIRE_BUTTON_HEIGHT,
+    )
 
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("didactic-happiness")
@@ -61,18 +71,40 @@ def draw_hp_bar(surface, ship, label):
     label_surf = small_font.render(f"{label} {ship.hp}/{ship.max_hp}", True, (200, 200, 200))
     surface.blit(label_surf, (x, y - 18))
 
-def draw_enemy_hp_bar(surface, ship, turn_count):
+def draw_enemy_hp_bar(surface, ship, turn_count, debug=False):
     bar_width = SHIP_SIZE
     bar_height = 8
     x = ship.rect.x
     y = ship.rect.y - 20
-    ratio = display_hp_ratio(ship.hp, ship.max_hp, turn_count)
+    if debug:
+        ratio = ship.hp / ship.max_hp if ship.max_hp else 0
+        visible = True
+        label = f"Enemy {ship.hp}/{ship.max_hp}"
+    else:
+        ratio = display_hp_ratio(ship.hp, ship.max_hp, turn_count)
+        visible = hp_visible(turn_count)
+        label = f"Enemy {format_enemy_hp(ship.hp, ship.max_hp, turn_count)}"
     pygame.draw.rect(surface, (60, 60, 60), (x, y, bar_width, bar_height))
-    if hp_visible(turn_count):
+    if visible:
         pygame.draw.rect(surface, (200, 60, 60), (x, y, int(bar_width * ratio), bar_height))
-    label = f"Enemy {format_enemy_hp(ship.hp, ship.max_hp, turn_count)}"
     label_surf = small_font.render(label, True, (200, 200, 200))
     surface.blit(label_surf, (x, y - 18))
+
+
+def draw_debug_hud(surface, player, enemy, game_state):
+    if not game_state.debug_mode:
+        return
+    lines = [
+        "DEBUG MODE (F1)",
+        f"Turn: {game_state.turn_count}",
+        f"Player: HP {player.hp}/{player.max_hp}  Morale {player.morale}  Acc {player.base_accuracy:+d}{player.accuracy_modifier():+d}",
+        f"Enemy:  HP {enemy.hp}/{enemy.max_hp}  Morale {enemy.morale}  Acc {enemy.base_accuracy:+d}{enemy.accuracy_modifier():+d}",
+    ]
+    y = 10
+    for line in lines:
+        surf = small_font.render(line, True, (255, 220, 100))
+        surface.blit(surf, (10, y))
+        y += 20
 
 def draw_morale_bar(surface, ship):
     bar_width = SHIP_SIZE
@@ -86,12 +118,7 @@ def draw_morale_bar(surface, ship):
 def draw_fire_button(surface, game_state):
     if game_state.is_enemy_turn():
         return
-    rect = pygame.Rect(
-        WINDOW_WIDTH // 2 - FIRE_BUTTON_WIDTH // 2,
-        WINDOW_HEIGHT // 2 - FIRE_BUTTON_HEIGHT // 2,
-        FIRE_BUTTON_WIDTH,
-        FIRE_BUTTON_HEIGHT,
-    )
+    rect = fire_button_rect()
     active = game_state.selected_compartment is not None
     bg_color = (180, 40, 40) if active else (50, 50, 50)
     border_color = (220, 60, 60) if active else (90, 90, 90)
@@ -103,6 +130,23 @@ def draw_fire_button(surface, game_state):
         text_surf,
         (rect.centerx - text_surf.get_width() // 2, rect.centery - text_surf.get_height() // 2),
     )
+
+def perform_fire():
+    if not (game_state.is_player_turn() and game_state.selected_compartment):
+        return
+    hit, _ = combat.fire(game_state.selected_compartment, enemy, player)
+    if hit:
+        game_state.register_hit(game_state.selected_compartment, current_time)
+    game_state.clear_selection()
+    game_state.next_turn()
+    target = combat.pick_enemy_target(enemy, player)
+    game_state.start_enemy_turn(target, current_time)
+
+
+def apply_debug_to_ships():
+    enemy.force_reveal = game_state.debug_mode
+    enemy.refresh()
+
 
 hovered_compartment = None
 current_time = 0
@@ -120,18 +164,17 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if game_state.is_player_turn() and hovered_compartment:
-                game_state.select(hovered_compartment)
+            if game_state.is_player_turn():
+                if fire_button_rect().collidepoint(mouse_x, mouse_y) and game_state.selected_compartment:
+                    perform_fire()
+                elif hovered_compartment:
+                    game_state.select(hovered_compartment)
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and game_state.is_player_turn():
-                if game_state.selected_compartment:
-                    hit, _ = combat.fire(game_state.selected_compartment, enemy, player)
-                    if hit:
-                        game_state.register_hit(game_state.selected_compartment, current_time)
-                    game_state.clear_selection()
-                    game_state.next_turn()
-                    target = combat.pick_enemy_target(enemy, player)
-                    game_state.start_enemy_turn(target, current_time)
+            if event.key == pygame.K_F1:
+                game_state.toggle_debug()
+                apply_debug_to_ships()
+            elif event.key == pygame.K_SPACE and game_state.is_player_turn():
+                perform_fire()
 
     if game_state.is_enemy_turn() and game_state.enemy_target is not None:
         if game_state.enemy_ready_to_fire(current_time):
@@ -153,7 +196,9 @@ while running:
         draw_hp_bar(screen, player, "Player")
         draw_morale_bar(screen, player)
     if enemy.alive():
-        draw_enemy_hp_bar(screen, enemy, game_state.turn_count)
+        draw_enemy_hp_bar(screen, enemy, game_state.turn_count, debug=game_state.debug_mode)
+        if game_state.debug_mode:
+            draw_morale_bar(screen, enemy)
 
     if game_state.last_hit_compartment and current_time - game_state.last_hit_time < 400:
         hit_rect = compartment_screen_rect(
@@ -186,6 +231,7 @@ while running:
         pygame.draw.rect(screen, (220, 60, 60), enemy_target_rect, 2)
 
     draw_fire_button(screen, game_state)
+    draw_debug_hud(screen, player, enemy, game_state)
 
     turn_text = "Your Turn" if game_state.is_player_turn() else "Enemy Turn"
     turn_surface = font.render(turn_text, True, (200, 200, 200))

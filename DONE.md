@@ -64,3 +64,10 @@ Completed tasks. Archived for reference only; consult when prior work is specifi
 - [x] "Fire (space)" button rendered at screen center: bright red with target, dim gray without, invisible during enemy turn
 - [x] Enemy turn paced over 2 seconds: 1s acquiring (no indicator), 1s target locked (red border), then fire
 - [x] CombatSystem.pick_enemy_target split from enemy_attack for staged resolution
+
+## Combat polish
+
+- [x] Debug mode (F1) reveals precise HP, morale, accuracy modifiers, and all enemy compartments
+- [x] Fire button also responds to mouse click (Space still works)
+- [x] Per-ship base accuracy: Player 70, Enemy 40 (was shared 70)
+- [x] Fire button moved to bottom-center (y = WINDOW_HEIGHT - 70)
