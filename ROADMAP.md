@@ -4,19 +4,6 @@ Long-term feature plan. Agents: consult this when BACKLOG is empty or when pulli
 
 ---
 
-## Crew & Morale
-
-- [ ] Add `morale` attribute (0–100) to Player entity (default 50)
-- [ ] **Morale events:**
-  - Taking damage: morale -= 10
-  - Destroying enemy compartment: morale += 15
-  - Crew compartment destroyed: morale -= 25
-- [ ] **Morale effects on accuracy:** +2% per 10 morale above 50 baseline (and -2% per 10 below)
-- [ ] Morale drift: +1 per turn while below 50, -1 per turn while above 50
-- [ ] Visual feedback: render morale bar above player ship
-
----
-
 ## Upgrades
 
 - [ ] Create `Upgrade` data structure: `name`, `upgrade_type` (crew / ship), `effect_key` (accuracy, fire_rate, hull_hp), `effect_value`, `cost`

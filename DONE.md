@@ -35,3 +35,16 @@ Completed tasks. Archived for reference only; consult when prior work is specifi
 - [x] Hits on destroyed compartments deal 5 damage to ship only
 - [x] Destroyed compartments render in dimmed color (30% intensity)
 - [x] Ship.refresh() re-renders compartments after state changes
+
+## Crew & Morale
+
+- [x] Morale attribute (0–100, default 50) on Ship
+- [x] Morale events: -10 on hit taken, -25 extra on own crew compartment destroyed, +15 for attacker destroying enemy compartment
+- [x] Accuracy modifier: +2% per 10 morale above 50 baseline (and inverse below)
+- [x] Morale drift: +1/turn below 50, -1/turn above 50, triggered after each full exchange
+- [x] Morale bar rendered above player ship
+
+## Per-compartment-type destruction effects
+
+- [x] Per-type destruction bonus damage dict: HULL 10, CREW 10, CORE 20, WEAPONS 5
+- [x] Destroyed weapons compartments apply -15% accuracy penalty (stacking)

@@ -27,6 +27,15 @@ SYSTEM_COLORS = {
     SystemType.CORE: (200, 180, 60),
 }
 
+DESTROY_BONUS_DAMAGE = {
+    SystemType.WEAPONS: 5,
+    SystemType.HULL: 10,
+    SystemType.CREW: 10,
+    SystemType.CORE: 20,
+}
+
+WEAPONS_DESTROYED_ACCURACY_PENALTY = 15
+
 
 def dimmed(color, factor=0.3):
     return tuple(int(c * factor) for c in color)

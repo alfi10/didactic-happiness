@@ -58,6 +58,15 @@ def draw_hp_bar(surface, ship, label):
     label_surf = small_font.render(f"{label} {ship.hp}/{ship.max_hp}", True, (200, 200, 200))
     surface.blit(label_surf, (x, y - 18))
 
+def draw_morale_bar(surface, ship):
+    bar_width = SHIP_SIZE
+    bar_height = 6
+    x = ship.rect.x
+    y = ship.rect.y - 10
+    ratio = ship.morale / 100
+    pygame.draw.rect(surface, (60, 60, 60), (x, y, bar_width, bar_height))
+    pygame.draw.rect(surface, (80, 180, 220), (x, y, int(bar_width * ratio), bar_height))
+
 hovered_compartment = None
 current_time = 0
 
@@ -79,7 +88,7 @@ while running:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and game_state.is_player_turn():
                 if game_state.selected_compartment:
-                    hit, damage = combat.fire(game_state.selected_compartment, enemy)
+                    hit, damage = combat.fire(game_state.selected_compartment, enemy, player)
                     if hit:
                         game_state.register_hit(game_state.selected_compartment, current_time)
                     game_state.clear_selection()
@@ -90,12 +99,16 @@ while running:
                         game_state.register_hit(target, current_time)
                     game_state.next_turn()
 
+                    player.drift_morale()
+                    enemy.drift_morale()
+
     sprites.update()
     screen.fill((20, 20, 40))
     sprites.draw(screen)
 
     if player.alive():
         draw_hp_bar(screen, player, "Player")
+        draw_morale_bar(screen, player)
     if enemy.alive():
         draw_hp_bar(screen, enemy, "Enemy")
 

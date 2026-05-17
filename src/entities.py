@@ -1,9 +1,19 @@
 import pygame
-from src.compartments import DEFAULT_LAYOUT, Compartment, SYSTEM_COLORS, dimmed
+from src.compartments import (
+    DEFAULT_LAYOUT,
+    Compartment,
+    SystemType,
+    SYSTEM_COLORS,
+    WEAPONS_DESTROYED_ACCURACY_PENALTY,
+    dimmed,
+)
 
 CELL_SIZE = 40
 SHIP_SIZE = CELL_SIZE * 3
 DEFAULT_SHIP_HP = 100
+DEFAULT_MORALE = 50
+MAX_MORALE = 100
+MORALE_BASELINE = 50
 
 
 class Ship(pygame.sprite.Sprite):
@@ -13,6 +23,7 @@ class Ship(pygame.sprite.Sprite):
         self.y = y
         self.hp = hp
         self.max_hp = hp
+        self.morale = DEFAULT_MORALE
         self.compartments = []
         self.image = pygame.Surface((SHIP_SIZE, SHIP_SIZE))
         self.rect = self.image.get_rect(topleft=(x, y))
@@ -26,6 +37,24 @@ class Ship(pygame.sprite.Sprite):
 
     def is_destroyed(self):
         return self.hp == 0
+
+    def change_morale(self, delta):
+        self.morale = max(0, min(MAX_MORALE, self.morale + delta))
+
+    def drift_morale(self):
+        if self.morale < MORALE_BASELINE:
+            self.change_morale(1)
+        elif self.morale > MORALE_BASELINE:
+            self.change_morale(-1)
+
+    def accuracy_modifier(self):
+        morale_delta = (self.morale - MORALE_BASELINE) // 10 * 2
+        weapons_penalty = sum(
+            WEAPONS_DESTROYED_ACCURACY_PENALTY
+            for c in self.compartments
+            if c.system_type == SystemType.WEAPONS and not c.active
+        )
+        return morale_delta - weapons_penalty
 
     def _build_compartments(self):
         for i, (name, system_type) in enumerate(DEFAULT_LAYOUT):
