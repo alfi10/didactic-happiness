@@ -6,17 +6,14 @@ Long-term feature plan. Agents: consult this when BACKLOG is empty or when pulli
 
 ## Crew & Morale
 
-- [ ] Add `morale` attribute (0–100) to Player entity
+- [ ] Add `morale` attribute (0–100) to Player entity (default 50)
 - [ ] **Morale events:**
   - Taking damage: morale -= 10
   - Destroying enemy compartment: morale += 15
-  - Crew death: morale -= 25
-- [ ] **Morale effects:**
-  - Accuracy modifier: +2% per 10 morale (50 morale = base, 100 morale = +10%)
-  - Fire rate modifier: +1 action point per 25 morale (threshold-based: 25→+1, 50→+2, etc.)
-  - Action gating: some actions only available if morale > threshold
-- [ ] Morale drift: passive recovery toward 50 per turn (+1 per turn while below 50, -1 per turn while above 50)
-- [ ] Visual feedback: render morale bar
+  - Crew compartment destroyed: morale -= 25
+- [ ] **Morale effects on accuracy:** +2% per 10 morale above 50 baseline (and -2% per 10 below)
+- [ ] Morale drift: +1 per turn while below 50, -1 per turn while above 50
+- [ ] Visual feedback: render morale bar above player ship
 
 ---
 

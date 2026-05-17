@@ -12,7 +12,7 @@ Agent workbench for **didactic-happiness**. **Doing** = current task. **Up next*
 
 ## Up next
 
-(Health complete. Next: Crew & Morale system.)
+(Combat balancing + visual destruction complete. Next: Crew & Morale.)
 
 ---
 

@@ -43,6 +43,7 @@ def test_ship_not_destroyed_above_zero():
 
 def test_fire_reduces_ship_hp(monkeypatch):
     monkeypatch.setattr(random, "randint", lambda a, b: 0)
+    monkeypatch.setattr(random, "random", lambda: 0.99)
     ship = Ship(0, 0, hp=50)
     compartment = ship.compartments[0]
     CombatSystem.fire(compartment, ship)
@@ -51,6 +52,7 @@ def test_fire_reduces_ship_hp(monkeypatch):
 
 def test_compartment_disabled_at_zero_hp(monkeypatch):
     monkeypatch.setattr(random, "randint", lambda a, b: 0)
+    monkeypatch.setattr(random, "random", lambda: 0.99)
     ship = Ship(0, 0)
     compartment = ship.compartments[0]
     compartment.hp = CombatSystem.BASE_DAMAGE

@@ -1,5 +1,5 @@
 import pygame
-from src.compartments import DEFAULT_LAYOUT, Compartment, SYSTEM_COLORS
+from src.compartments import DEFAULT_LAYOUT, Compartment, SYSTEM_COLORS, dimmed
 
 CELL_SIZE = 40
 SHIP_SIZE = CELL_SIZE * 3
@@ -39,9 +39,13 @@ class Ship(pygame.sprite.Sprite):
         for compartment in self.compartments:
             x = compartment.col * CELL_SIZE
             y = compartment.row * CELL_SIZE
-            color = SYSTEM_COLORS[compartment.system_type]
+            base_color = SYSTEM_COLORS[compartment.system_type]
+            color = base_color if compartment.active else dimmed(base_color)
             pygame.draw.rect(self.image, color, (x, y, CELL_SIZE, CELL_SIZE))
             pygame.draw.rect(self.image, (40, 40, 60), (x, y, CELL_SIZE, CELL_SIZE), 1)
+
+    def refresh(self):
+        self._render_compartments()
 
     def update(self):
         pass

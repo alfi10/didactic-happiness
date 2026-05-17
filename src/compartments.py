@@ -27,6 +27,10 @@ SYSTEM_COLORS = {
     SystemType.CORE: (200, 180, 60),
 }
 
+
+def dimmed(color, factor=0.3):
+    return tuple(int(c * factor) for c in color)
+
 DEFAULT_LAYOUT = [
     ("Port Cannons", SystemType.WEAPONS),
     ("Reactor Hull", SystemType.HULL),

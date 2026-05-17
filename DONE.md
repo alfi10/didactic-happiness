@@ -26,3 +26,12 @@ Completed tasks. Archived for reference only; consult when prior work is specifi
 - [x] System disabling: when compartment HP reaches 0, set `active=False`
 - [x] Visual feedback: render HP bars above each ship
 - [x] Wire combat damage into ship HP
+
+## Combat balancing + destruction visuals
+
+- [x] Base damage raised to 10
+- [x] 33% chance hit instantly destroys compartment
+- [x] Destruction adds +10 bonus damage to ship HP
+- [x] Hits on destroyed compartments deal 5 damage to ship only
+- [x] Destroyed compartments render in dimmed color (30% intensity)
+- [x] Ship.refresh() re-renders compartments after state changes
