@@ -6,6 +6,7 @@ from src.combat import CombatSystem
 from src.intel import format_enemy_hp, display_hp_ratio, hp_visible
 from src.run_state import RunState
 from src.compartments import DESTROY_BONUS_DAMAGE, SystemType
+from src.non_combat import ACTIONS as NON_COMBAT_ACTIONS
 
 pygame.init()
 
@@ -23,6 +24,9 @@ FIRE_BUTTON_CENTER_Y = WINDOW_HEIGHT - 70
 RESULT_BUTTON_WIDTH = 160
 RESULT_BUTTON_HEIGHT = 44
 DEBUG_KILL_BUTTON_WIDTH = 120
+ACTION_BUTTON_WIDTH = 260
+ACTION_BUTTON_HEIGHT = 44
+ACTION_SLOT_HEIGHT = 82
 
 
 def fire_button_rect():
@@ -50,6 +54,17 @@ def debug_kill_button_rect():
         DEBUG_KILL_BUTTON_WIDTH,
         FIRE_BUTTON_HEIGHT,
     )
+
+def action_button_rects():
+    total_h = len(NON_COMBAT_ACTIONS) * ACTION_SLOT_HEIGHT
+    start_y = WINDOW_HEIGHT // 2 - total_h // 2
+    cx = WINDOW_WIDTH // 2
+    return [
+        pygame.Rect(cx - ACTION_BUTTON_WIDTH // 2,
+                    start_y + i * ACTION_SLOT_HEIGHT,
+                    ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT)
+        for i in range(len(NON_COMBAT_ACTIONS))
+    ]
 
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("didactic-happiness")
@@ -216,9 +231,10 @@ def start_next_combat():
     sprites.remove(enemy)
     enemy = Enemy(ENEMY_X, SHIP_Y)
     sprites.add(enemy)
-    if game_state.debug_mode:
+    if game_state.debug_mode or run_state.scan_next_enemy:
         enemy.force_reveal = True
         enemy.refresh()
+    run_state.scan_next_enemy = False
     game_state.reset_for_combat()
 
 
@@ -231,6 +247,16 @@ def render_combat_result():
     total = small_font.render(f"Total: {run_state.score} / {run_state.target_score}", True, (200, 200, 200))
     screen.blit(total, (WINDOW_WIDTH // 2 - total.get_width() // 2, WINDOW_HEIGHT // 2 + 10))
     draw_button(screen, continue_button_rect(), "Continue")
+
+
+def render_non_combat_action():
+    screen.fill((20, 20, 40))
+    header = font.render("Choose an Action", True, (200, 200, 255))
+    screen.blit(header, (WINDOW_WIDTH // 2 - header.get_width() // 2, 40))
+    for action, rect in zip(NON_COMBAT_ACTIONS, action_button_rects()):
+        draw_button(screen, rect, action.name)
+        desc = small_font.render(action.description, True, (140, 140, 160))
+        screen.blit(desc, (WINDOW_WIDTH // 2 - desc.get_width() // 2, rect.bottom + 4))
 
 
 def render_game_over():
@@ -293,7 +319,13 @@ while running:
                     debug_auto_kill = not debug_auto_kill
             elif game_state.screen == Screen.COMBAT_RESULT:
                 if continue_button_rect().collidepoint(mouse_x, mouse_y):
-                    start_next_combat()
+                    game_state.screen = Screen.NON_COMBAT_ACTION
+            elif game_state.screen == Screen.NON_COMBAT_ACTION:
+                for action, rect in zip(NON_COMBAT_ACTIONS, action_button_rects()):
+                    if rect.collidepoint(mouse_x, mouse_y):
+                        action.apply(run_state, player)
+                        start_next_combat()
+                        break
             elif game_state.screen in (Screen.GAME_OVER, Screen.VICTORY):
                 if quit_button_rect().collidepoint(mouse_x, mouse_y):
                     running = False
@@ -385,6 +417,9 @@ while running:
 
     elif game_state.screen == Screen.COMBAT_RESULT:
         render_combat_result()
+
+    elif game_state.screen == Screen.NON_COMBAT_ACTION:
+        render_non_combat_action()
 
     elif game_state.screen == Screen.GAME_OVER:
         render_game_over()

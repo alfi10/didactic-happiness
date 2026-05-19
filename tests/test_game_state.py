@@ -109,3 +109,7 @@ def test_reset_for_combat_preserves_debug():
     state.toggle_debug()
     state.reset_for_combat()
     assert state.debug_mode is True
+
+
+def test_screen_enum_has_non_combat_action():
+    assert Screen.NON_COMBAT_ACTION is not None
