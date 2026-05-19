@@ -168,6 +168,9 @@ def draw_fire_button(surface, game_state):
 def perform_fire():
     if not (game_state.is_player_turn() and game_state.selected_compartment):
         return
+    if debug_auto_kill and game_state.debug_mode:
+        debug_auto_hit()
+        return
     hit, _ = combat.fire(game_state.selected_compartment, enemy, player)
     if hit:
         game_state.register_hit(game_state.selected_compartment, current_time)
@@ -259,12 +262,6 @@ running = True
 while running:
     current_time = pygame.time.get_ticks()
     mouse_x, mouse_y = pygame.mouse.get_pos()
-
-    if (debug_auto_kill
-            and game_state.debug_mode
-            and game_state.screen == Screen.COMBAT
-            and game_state.is_player_turn()):
-        debug_auto_hit()
 
     hovered_compartment = None
     if game_state.screen == Screen.COMBAT and game_state.is_player_turn():
