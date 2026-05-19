@@ -85,3 +85,14 @@ def test_is_complete_at_boundary():
 def test_is_complete_above():
     rs = RunState(score=150)
     assert rs.is_complete()
+
+
+def test_last_score_delta_default_zero():
+    rs = RunState()
+    assert rs.last_score_delta == 0
+
+
+def test_award_score_sets_last_delta():
+    rs = RunState(combat_count=1)
+    rs.award_combat_score(100, 100)
+    assert rs.last_score_delta == TIER1_BASE + 10

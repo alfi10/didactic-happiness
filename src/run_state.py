@@ -16,6 +16,7 @@ class RunState:
     consumables: dict = field(default_factory=dict)
     pending_morale_penalty: int = 0
     scan_next_enemy: bool = False
+    last_score_delta: int = 0
 
     def tier_base(self) -> int:
         if self.combat_count <= 4:
@@ -28,6 +29,7 @@ class RunState:
         hp_bonus = math.floor((player_hp / player_max_hp) * 10) if player_max_hp else 0
         gained = self.tier_base() + hp_bonus
         self.score += gained
+        self.last_score_delta = gained
         return gained
 
     def is_complete(self) -> bool:

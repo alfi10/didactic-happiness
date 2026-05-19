@@ -10,6 +10,13 @@ class TurnState(Enum):
     ENEMY_TURN = 2
 
 
+class Screen(Enum):
+    COMBAT = "combat"
+    COMBAT_RESULT = "combat_result"
+    GAME_OVER = "game_over"
+    VICTORY = "victory"
+
+
 class GameState:
     def __init__(self):
         self.turn_state = TurnState.PLAYER_TURN
@@ -20,6 +27,8 @@ class GameState:
         self.enemy_target = None
         self.enemy_turn_start = 0
         self.debug_mode = False
+        self.screen = Screen.COMBAT
+        self.last_combat_result = "win"  # "win" | "flee" (flee added in M4)
 
     def next_turn(self):
         if self.turn_state == TurnState.PLAYER_TURN:
@@ -63,3 +72,13 @@ class GameState:
     def toggle_debug(self):
         self.debug_mode = not self.debug_mode
         return self.debug_mode
+
+    def reset_for_combat(self):
+        self.turn_state = TurnState.PLAYER_TURN
+        self.turn_count = 0
+        self.selected_compartment = None
+        self.last_hit_compartment = None
+        self.last_hit_time = 0
+        self.enemy_target = None
+        self.enemy_turn_start = 0
+        self.screen = Screen.COMBAT

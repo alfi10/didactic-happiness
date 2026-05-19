@@ -1,4 +1,4 @@
-from src.game_state import GameState, TurnState, ENEMY_ACQUIRE_MS, ENEMY_FIRE_MS
+from src.game_state import GameState, TurnState, Screen, ENEMY_ACQUIRE_MS, ENEMY_FIRE_MS
 
 
 def test_initial_turn_is_player():
@@ -78,3 +78,34 @@ def test_toggle_debug_flips_flag():
     assert state.debug_mode is True
     assert state.toggle_debug() is False
     assert state.debug_mode is False
+
+
+def test_screen_starts_as_combat():
+    state = GameState()
+    assert state.screen == Screen.COMBAT
+
+
+def test_last_combat_result_default():
+    state = GameState()
+    assert state.last_combat_result == "win"
+
+
+def test_reset_for_combat_restores_state():
+    state = GameState()
+    state.screen = Screen.COMBAT_RESULT
+    state.turn_count = 7
+    state.last_hit_time = 999
+    state.reset_for_combat()
+    assert state.screen == Screen.COMBAT
+    assert state.turn_count == 0
+    assert state.turn_state == TurnState.PLAYER_TURN
+    assert state.selected_compartment is None
+    assert state.last_hit_compartment is None
+    assert state.enemy_target is None
+
+
+def test_reset_for_combat_preserves_debug():
+    state = GameState()
+    state.toggle_debug()
+    state.reset_for_combat()
+    assert state.debug_mode is True
