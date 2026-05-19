@@ -1,18 +1,14 @@
 # Workbench
 
-Agent workbench for **didactic-happiness**. **Doing** = current task. **Up next** = immediately actionable tasks. When both sections are empty, pull the next feature from [ROADMAP.md](ROADMAP.md).
+Agent workbench for **didactic-happiness**. **Task** = current task. When it is empty, pull the next feature from [ROADMAP.md](ROADMAP.md).
 
 ---
 
-## Doing
+## Task
 
-(Ready to pull next feature from ROADMAP.md)
+**Milestone 1 — Run State & Score Tracking** (see [ROADMAP.md](ROADMAP.md))
 
----
-
-## Up next
-
-(Combat polish complete. Upgrades remains deferred — see ROADMAP note.)
+Introduce `RunState` and start tracking Score + combat_count; wire up placeholder win/loss checks. This is the first step toward closing the game loop.
 
 ---
 
