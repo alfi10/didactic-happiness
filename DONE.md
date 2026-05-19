@@ -71,3 +71,15 @@ Completed tasks. Archived for reference only; consult when prior work is specifi
 - [x] Fire button also responds to mouse click (Space still works)
 - [x] Per-ship base accuracy: Player 70, Enemy 40 (was shared 70)
 - [x] Fire button moved to bottom-center (y = WINDOW_HEIGHT - 70)
+
+## Milestone 1 — Run State & Score Tracking
+
+- [x] `src/run_state.py`: `RunState` dataclass with `combat_count`, `score`, `target_score=120`, `owned_upgrades`, `consumables`, `pending_morale_penalty`, `scan_next_enemy`
+- [x] `RunState` instantiated in `main.py` startup alongside `GameState`
+- [x] On enemy HP ≤ 0: `combat_count++`, award Score = `tier_base + floor(hp% × 10)` (T1: 12, T2: 18, T3: 25)
+- [x] On player HP ≤ 0: game freezes with "GAME OVER" overlay
+- [x] On Score ≥ 120: game freezes with "VICTORY!" overlay
+- [x] "Combat N Complete" overlay shown when enemy dies but score < 120
+- [x] All overlays freeze combat inputs; ESC exits
+- [x] Debug HUD (F1) extended with Score and Combats counters
+- [x] 15 unit tests in `tests/test_run_state.py` covering tier boundaries, score accumulation, and win condition

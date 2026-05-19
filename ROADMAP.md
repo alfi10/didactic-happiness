@@ -19,14 +19,14 @@ Full design rationale lives in the approved plan at `~/.claude/plans/i-want-to-c
 
 **Goal:** introduce `RunState`; track Score and combat_count; check win/loss.
 
-- [ ] Create `src/run_state.py` with `RunState` dataclass (`combat_count`, `score`, `target_score=120`, `owned_upgrades`, `consumables`, `pending_morale_penalty`, `scan_next_enemy`)
-- [ ] Instantiate `RunState` in `main.py` startup
-- [ ] On enemy HP ≤ 0: increment `combat_count`, award Score = `tier_base + hp_bonus`
+- [x] Create `src/run_state.py` with `RunState` dataclass (`combat_count`, `score`, `target_score=120`, `owned_upgrades`, `consumables`, `pending_morale_penalty`, `scan_next_enemy`)
+- [x] Instantiate `RunState` in `main.py` startup
+- [x] On enemy HP ≤ 0: increment `combat_count`, award Score = `tier_base + hp_bonus`
   - Tier base: combats 1–4 = 12, 5–9 = 18, 10+ = 25
   - HP bonus: `floor(remaining_hp_pct * 10)` (max +10)
-- [ ] On player HP ≤ 0: freeze game and print "Game Over" placeholder
-- [ ] On Score ≥ target: freeze game and print "Victory" placeholder
-- [ ] Add `combat_count` and `score` to the debug HUD (F1)
+- [x] On player HP ≤ 0: freeze game and print "Game Over" placeholder
+- [x] On Score ≥ target: freeze game and print "Victory" placeholder
+- [x] Add `combat_count` and `score` to the debug HUD (F1)
 
 **Accepts:** debug HUD shows the counters; reaching 120 prints victory; dying prints game over.
 
