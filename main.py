@@ -4,6 +4,7 @@ from src.entities import Player, Enemy, CELL_SIZE, SHIP_SIZE
 from src.game_state import GameState
 from src.combat import CombatSystem
 from src.intel import format_enemy_hp, display_hp_ratio, hp_visible
+from src.run_state import RunState
 
 pygame.init()
 
@@ -42,6 +43,8 @@ sprites.add(enemy)
 
 game_state = GameState()
 combat = CombatSystem()
+run_state = RunState()
+game_result = None  # None | "combat_won" | "victory" | "game_over"
 
 def get_compartment_at(ship, mouse_x, mouse_y):
     if not ship.rect.collidepoint(mouse_x, mouse_y):
@@ -91,7 +94,7 @@ def draw_enemy_hp_bar(surface, ship, turn_count, debug=False):
     surface.blit(label_surf, (x, y - 18))
 
 
-def draw_debug_hud(surface, player, enemy, game_state):
+def draw_debug_hud(surface, player, enemy, game_state, run_state):
     if not game_state.debug_mode:
         return
     lines = [
@@ -99,6 +102,7 @@ def draw_debug_hud(surface, player, enemy, game_state):
         f"Turn: {game_state.turn_count}",
         f"Player: HP {player.hp}/{player.max_hp}  Morale {player.morale}  Acc {player.base_accuracy:+d}{player.accuracy_modifier():+d}",
         f"Enemy:  HP {enemy.hp}/{enemy.max_hp}  Morale {enemy.morale}  Acc {enemy.base_accuracy:+d}{enemy.accuracy_modifier():+d}",
+        f"Score: {run_state.score} / {run_state.target_score}  Combats: {run_state.combat_count}",
     ]
     y = 10
     for line in lines:
@@ -114,6 +118,31 @@ def draw_morale_bar(surface, ship):
     ratio = ship.morale / 100
     pygame.draw.rect(surface, (60, 60, 60), (x, y, bar_width, bar_height))
     pygame.draw.rect(surface, (80, 180, 220), (x, y, int(bar_width * ratio), bar_height))
+
+def draw_game_result_overlay(surface, run_state, result):
+    overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+    overlay.set_alpha(160)
+    overlay.fill((0, 0, 0))
+    surface.blit(overlay, (0, 0))
+    if result == "victory":
+        color = (100, 255, 100)
+        lines = ["VICTORY!", f"Score: {run_state.score} / {run_state.target_score}",
+                 f"Combats: {run_state.combat_count}", "Press ESC to quit"]
+    elif result == "game_over":
+        color = (255, 80, 80)
+        lines = ["GAME OVER", f"Score: {run_state.score} / {run_state.target_score}",
+                 f"Combats: {run_state.combat_count}", "Press ESC to quit"]
+    else:  # combat_won
+        color = (255, 220, 80)
+        lines = [f"Combat {run_state.combat_count} Complete",
+                 f"Score: {run_state.score} / {run_state.target_score}",
+                 "Press ESC to quit"]
+    cy = WINDOW_HEIGHT // 2 - 50
+    for line in lines:
+        surf = font.render(line, True, color)
+        surface.blit(surf, (WINDOW_WIDTH // 2 - surf.get_width() // 2, cy))
+        cy += 50
+
 
 def draw_fire_button(surface, game_state):
     if game_state.is_enemy_turn():
@@ -164,7 +193,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if game_state.is_player_turn():
+            if game_result is None and game_state.is_player_turn():
                 if fire_button_rect().collidepoint(mouse_x, mouse_y) and game_state.selected_compartment:
                     perform_fire()
                 elif hovered_compartment:
@@ -173,10 +202,12 @@ while running:
             if event.key == pygame.K_F1:
                 game_state.toggle_debug()
                 apply_debug_to_ships()
-            elif event.key == pygame.K_SPACE and game_state.is_player_turn():
+            elif event.key == pygame.K_ESCAPE and game_result is not None:
+                running = False
+            elif event.key == pygame.K_SPACE and game_result is None and game_state.is_player_turn():
                 perform_fire()
 
-    if game_state.is_enemy_turn() and game_state.enemy_target is not None:
+    if game_result is None and game_state.is_enemy_turn() and game_state.enemy_target is not None:
         if game_state.enemy_ready_to_fire(current_time):
             target = game_state.enemy_target
             hit, _ = combat.fire(target, player, enemy)
@@ -187,6 +218,14 @@ while running:
             game_state.increment_turn_count()
             player.drift_morale()
             enemy.drift_morale()
+
+    if game_result is None:
+        if not enemy.alive():
+            run_state.combat_count += 1
+            run_state.award_combat_score(player.hp, player.max_hp)
+            game_result = "victory" if run_state.is_complete() else "combat_won"
+        elif not player.alive():
+            game_result = "game_over"
 
     sprites.update()
     screen.fill((20, 20, 40))
@@ -231,7 +270,10 @@ while running:
         pygame.draw.rect(screen, (220, 60, 60), enemy_target_rect, 2)
 
     draw_fire_button(screen, game_state)
-    draw_debug_hud(screen, player, enemy, game_state)
+    draw_debug_hud(screen, player, enemy, game_state, run_state)
+
+    if game_result is not None:
+        draw_game_result_overlay(screen, run_state, game_result)
 
     turn_text = "Your Turn" if game_state.is_player_turn() else "Enemy Turn"
     turn_surface = font.render(turn_text, True, (200, 200, 200))
