@@ -5,6 +5,7 @@ from src.game_state import GameState, Screen
 from src.combat import CombatSystem
 from src.intel import format_enemy_hp, display_hp_ratio, hp_visible
 from src.run_state import RunState
+from src.compartments import DESTROY_BONUS_DAMAGE, SystemType
 
 pygame.init()
 
@@ -21,6 +22,7 @@ FIRE_BUTTON_HEIGHT = 44
 FIRE_BUTTON_CENTER_Y = WINDOW_HEIGHT - 70
 RESULT_BUTTON_WIDTH = 160
 RESULT_BUTTON_HEIGHT = 44
+DEBUG_KILL_BUTTON_WIDTH = 120
 
 
 def fire_button_rect():
@@ -41,6 +43,14 @@ def quit_button_rect():
                        WINDOW_HEIGHT // 2 + 90,
                        RESULT_BUTTON_WIDTH, RESULT_BUTTON_HEIGHT)
 
+def debug_kill_button_rect():
+    return pygame.Rect(
+        WINDOW_WIDTH // 2 + FIRE_BUTTON_WIDTH // 2 + 10,
+        FIRE_BUTTON_CENTER_Y - FIRE_BUTTON_HEIGHT // 2,
+        DEBUG_KILL_BUTTON_WIDTH,
+        FIRE_BUTTON_HEIGHT,
+    )
+
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("didactic-happiness")
 clock = pygame.time.Clock()
@@ -56,6 +66,7 @@ sprites.add(enemy)
 game_state = GameState()
 combat = CombatSystem()
 run_state = RunState()
+debug_auto_kill = False
 
 def get_compartment_at(ship, mouse_x, mouse_y):
     if not ship.rect.collidepoint(mouse_x, mouse_y):
@@ -166,6 +177,32 @@ def perform_fire():
     game_state.start_enemy_turn(target, current_time)
 
 
+def debug_auto_hit():
+    if not (game_state.is_player_turn() and game_state.debug_mode):
+        return
+    target = game_state.selected_compartment
+    if target is None or target not in enemy.compartments:
+        target = next((c for c in enemy.compartments if c.active), None)
+    if target is None:
+        return
+    target.revealed = True
+    target.hp = 0
+    target.active = False
+    bonus = DESTROY_BONUS_DAMAGE[target.system_type]
+    damage = CombatSystem.BASE_DAMAGE + bonus
+    enemy.take_damage(damage)
+    enemy.change_morale(-CombatSystem.HIT_MORALE_PENALTY)
+    if target.system_type == SystemType.CREW:
+        enemy.change_morale(-CombatSystem.CREW_DESTROYED_MORALE_PENALTY)
+    enemy.refresh()
+    player.change_morale(CombatSystem.DESTROY_ENEMY_MORALE_REWARD)
+    game_state.register_hit(target, current_time)
+    game_state.clear_selection()
+    game_state.next_turn()
+    e_target = combat.pick_enemy_target(enemy, player)
+    game_state.start_enemy_turn(e_target, current_time)
+
+
 def apply_debug_to_ships():
     enemy.force_reveal = game_state.debug_mode
     enemy.refresh()
@@ -223,25 +260,41 @@ while running:
     current_time = pygame.time.get_ticks()
     mouse_x, mouse_y = pygame.mouse.get_pos()
 
+    if (debug_auto_kill
+            and game_state.debug_mode
+            and game_state.screen == Screen.COMBAT
+            and game_state.is_player_turn()):
+        debug_auto_hit()
+
     hovered_compartment = None
     if game_state.screen == Screen.COMBAT and game_state.is_player_turn():
         hovered_compartment = get_compartment_at(enemy, mouse_x, mouse_y)
 
     for event in pygame.event.get():
+        global debug_auto_kill
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_F1:
                 game_state.toggle_debug()
                 apply_debug_to_ships()
+                if not game_state.debug_mode:
+                    debug_auto_kill = False
             elif event.key == pygame.K_SPACE and game_state.screen == Screen.COMBAT and game_state.is_player_turn():
                 perform_fire()
+            elif (event.key == pygame.K_d
+                  and game_state.debug_mode
+                  and game_state.screen == Screen.COMBAT):
+                debug_auto_kill = not debug_auto_kill
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if game_state.screen == Screen.COMBAT and game_state.is_player_turn():
                 if fire_button_rect().collidepoint(mouse_x, mouse_y) and game_state.selected_compartment:
                     perform_fire()
                 elif hovered_compartment:
                     game_state.select(hovered_compartment)
+            if game_state.screen == Screen.COMBAT and game_state.debug_mode:
+                if debug_kill_button_rect().collidepoint(mouse_x, mouse_y):
+                    debug_auto_kill = not debug_auto_kill
             elif game_state.screen == Screen.COMBAT_RESULT:
                 if continue_button_rect().collidepoint(mouse_x, mouse_y):
                     start_next_combat()
@@ -250,7 +303,7 @@ while running:
                     running = False
 
     if game_state.screen == Screen.COMBAT and game_state.is_enemy_turn() and game_state.enemy_target is not None:
-        if game_state.enemy_ready_to_fire(current_time):
+        if game_state.debug_mode or game_state.enemy_ready_to_fire(current_time):
             target = game_state.enemy_target
             hit, _ = combat.fire(target, player, enemy)
             if hit:
@@ -318,6 +371,16 @@ while running:
             pygame.draw.rect(screen, (220, 60, 60), enemy_target_rect, 2)
 
         draw_fire_button(screen, game_state)
+        if game_state.debug_mode:
+            label = "Auto-Kill: ON" if debug_auto_kill else "Auto-Kill (D)"
+            bg = (180, 140, 0) if debug_auto_kill else (50, 100, 180)
+            border = (220, 180, 0) if debug_auto_kill else (80, 140, 220)
+            rect = debug_kill_button_rect()
+            pygame.draw.rect(screen, bg, rect)
+            pygame.draw.rect(screen, border, rect, 2)
+            lbl_surf = small_font.render(label, True, (255, 255, 255))
+            screen.blit(lbl_surf, (rect.centerx - lbl_surf.get_width() // 2,
+                                   rect.centery - lbl_surf.get_height() // 2))
         draw_debug_hud(screen, player, enemy, game_state, run_state)
 
         turn_text = "Your Turn" if game_state.is_player_turn() else "Enemy Turn"
