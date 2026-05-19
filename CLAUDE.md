@@ -2,7 +2,9 @@
 
 ## Project
 
-**didactic-happiness** is a Pygame-based space shooter game. The player controls a ship and must defeat enemies through combat, managing crew morale and upgrades.
+**didactic-happiness** is a Pygame-based tactical space combat game. The player commands a ship through a series of turn-based combat encounters, earning **Score** by winning fights. Score is both the win condition (reach 120) and the shop currency — spending it on upgrades or consumables makes you survive longer but delays victory.
+
+**Run loop:** Combat → Combat Result → Non-Combat Action → (Shop every 5th combat) → New Enemy → repeat.
 
 **Language:** Python 3.x  
 **Entry point:** `python main.py`
@@ -29,17 +31,22 @@ python main.py
 
 ```
 didactic-happiness/
-  main.py                 # Entry point; initializes pygame, main game loop
+  main.py                 # Entry point; pygame init, main game loop, screen dispatch
   src/
-    entities.py           # Player, Enemy classes
-    combat.py             # Shooting, accuracy, damage
-    health.py             # Health/HP system
-    ...
+    entities.py           # Ship, Player, Enemy — HP, morale, accuracy stats
+    combat.py             # CombatSystem: fire(), accuracy roll, damage, destroy chance
+    compartments.py       # Compartment dataclass; 3x3 ship grid, per-type HP/effects
+    game_state.py         # GameState: turn state, screen enum (added in M2), flee state
+    intel.py              # Enemy HP fog-of-war; hidden until turn 5, precise from turn 10
+    run_state.py          # RunState: Score, combat_count, upgrades, consumables (added in M1)
+    non_combat.py         # NonCombatAction set — Patch Hull, Field Repair, Rally, Recon (M3)
+    shop.py               # ShopItem catalogue — 3 upgrades, 3 consumables (M5/M6)
+    enemies.py            # EnemyTemplate + spawn_enemy_for_combat() factory (M7)
   assets/                 # Sprites, images
-  tests/                  # Unit tests (if applicable)
+  tests/                  # Unit tests
 ```
 
-_Note: directories not yet created can be added as features are built._
+_Files marked (M#) do not exist yet; they are created in the listed milestone._
 
 ---
 

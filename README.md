@@ -6,17 +6,33 @@ A top-down 2D tactical space combat game.
 
 ## Concept
 
-**didactic-happiness** is a tactical turn-based space combat game inspired by FTL. You command a starship and must defeat enemy vessels by managing your crew's morale, upgrading your systems, and learning about your opponent through combat. Your ship is fixed on the left side of the screen; the enemy is displayed on the right. Each decision counts: which systems to prioritize, whether to target compartments or push for total destruction, how to manage crew morale. Victory is won through tactics, not reflexes.
+**didactic-happiness** is a tactical turn-based space combat game inspired by FTL. You command a starship through a series of enemy encounters, earning **Score** by winning fights. Score is both the win condition — reach 120 to escape — and your shop currency. Spending it on upgrades or consumables makes you more likely to survive, but delays the finish line, creating a constant tradeoff: push forward or invest to live longer?
+
+Each encounter plays out on a shared grid: your ship on the left, the enemy on the right. You fire at compartments, manage crew morale, and slowly learn the enemy's hidden layout. Victory is won through tactics, not reflexes.
 
 ---
 
-## Core Gameplay Loop (Per Turn)
+## Gameplay Loops
 
-1. **Your Turn** — Select a target compartment on the enemy ship. Choose an action (fire at that compartment).
-2. **Fire & Resolve** — Your attack rolls for accuracy. On hit, damage applies to the target compartment and enemy HP.
-3. **Enemy Turn** — The enemy selects a target compartment on your ship and fires. Accuracy and damage apply based on their morale and upgrades.
-4. **Learn** — As combat progresses, you discover details about the enemy ship — its hull layout, morale level, upgrade tier. Information is a weapon.
-5. **Manage** — Each turn, crew morale drifts slightly (toward 50). Between encounters, purchase upgrades and plan your strategy.
+### Per Turn (in combat)
+
+1. **Your Turn** — Select a target compartment on the enemy ship and fire.
+2. **Fire & Resolve** — Accuracy rolls; on hit, damage applies to the compartment and enemy HP. 33% chance of instant destruction.
+3. **Enemy Turn** — The enemy fires back; their accuracy is modified by morale and the intel fog lifts as turns pass.
+4. **Learn** — Enemy HP stays hidden until turn 5; precise readings from turn 10. Information is a weapon.
+5. **Flee (optional)** — Available from turn 3 onward. Always succeeds; costs 15 morale carried into the next fight and earns 0 Score.
+
+### Between Combats (run loop)
+
+```
+Combat → Combat Result → Non-Combat Action → [Shop every 5th] → New Enemy → repeat
+```
+
+6. **Combat Result** — Win earns Score (`tier_base + HP bonus`). Defeat ends the run.
+7. **Non-Combat Action** — Pick one free action: Patch Hull (+30 HP), Field Repair (restore a compartment), Rally Crew (morale → 70), or Recon Drone (reveal next enemy layout).
+8. **Shop** — Appears after combats 5, 10, 15… Spend Score on permanent upgrades or single-use consumables.
+9. **New Enemy** — Difficulty scales by combat count (T1 Scout → T2 Frigate → T3 Cruiser).
+10. **Win** — Reach Score 120 before your ship is destroyed.
 
 ---
 
@@ -56,22 +72,33 @@ Each entity has **HP** (hit points). Damage reduces it. When HP reaches 0, the e
 - Crew loss: morale -= 25
 - Turn passage: morale drifts passively (+1 per turn if below 50, -1 per turn if above 50)
 
-### Upgrades
-Two upgrade tracks:
+### Score
 
-**Crew Upgrades:**
-- Morale recovery rate (passive regeneration)
-- Accuracy bonuses
-- Fire rate bonuses
-- Action point increases
+Score is earned by winning combats and spent at the shop. It is the win condition (target: 120) and the only currency — both roles exist simultaneously.
 
-**Ship Upgrades:**
-- Hull HP (more health)
-- Weapon damage (hit harder)
-- Compartment shielding (localized protection)
-- System redundancy (disabled systems don't fully disable)
+- **Win reward:** `tier_base + floor(remaining_hp% × 10)`. Tier bases: T1 = 12, T2 = 18, T3 = 25.
+- **Flee reward:** 0.
+- **Spending:** shop only. Non-combat actions are free.
 
-Upgrades are earned between encounters or purchased with in-game currency.
+### Shop & Upgrades
+
+The shop opens every 5th combat. **Upgrades** are permanent for the run; **consumables** are single-use, held in your pouch and usable mid-combat.
+
+**Upgrades (stackable):**
+
+| Name | Cost | Effect | Max |
+|------|------|--------|-----|
+| Weapon Calibration | 12 | +5 base accuracy | ×3 |
+| Reinforced Hull | 18 | +20 max HP | ×3 |
+| Targeting AI | 25 | +8% destroy chance | ×2 |
+
+**Consumables:**
+
+| Name | Cost | Effect |
+|------|------|--------|
+| Emergency Repair Kit | 8 | +25 HP, usable in combat |
+| Morale Broadcast | 6 | Morale → 80, usable in combat |
+| Sensor Ping | 5 | Reveal one hidden enemy compartment |
 
 ### Enemy Intelligence
 The enemy ship starts mostly **hidden**. As you fight:
@@ -106,6 +133,7 @@ python main.py
 ## References
 
 - **Agent guide:** [CLAUDE.md](CLAUDE.md) — conventions, structure, how to run this project
-- **Task backlog:** [BACKLOG.md](BACKLOG.md) — what to build next
+- **Active task:** [WORKBENCH.md](WORKBENCH.md) — what's being built right now
+- **Feature roadmap:** [ROADMAP.md](ROADMAP.md) — upcoming milestones in order
 - **Workflow:** [WORKFLOW.md](WORKFLOW.md) — branching, commits, and shipping rules
 - **Completed work:** [DONE.md](DONE.md) — archive of finished tasks
