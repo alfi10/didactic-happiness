@@ -6,9 +6,9 @@ Agent workbench for **didactic-happiness**. **Task** = current task. When it is 
 
 ## Task
 
-**Milestone 2 — Screen State Machine & Combat Result Screen** (see [ROADMAP.md](ROADMAP.md))
+**Milestone 3 — Non-Combat Action Screen** (see [ROADMAP.md](ROADMAP.md))
 
-Introduce a `Screen` enum and refactor `main.py` to dispatch render/input by screen. Add proper `COMBAT_RESULT`, `GAME_OVER`, and `VICTORY` screens with a "Continue" / "Back to Menu" flow, replacing the M1 placeholder overlays.
+Insert a mandatory between-combat action screen after every COMBAT_RESULT. Player picks one of four free actions (Patch Hull, Field Repair, Rally Crew, Recon Drone), effect applies, then the next enemy spawns. This closes the MVP loop: combat → result → action → new enemy → repeat.
 
 ---
 

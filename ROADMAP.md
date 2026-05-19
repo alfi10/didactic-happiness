@@ -36,11 +36,11 @@ Full design rationale lives in the approved plan at `~/.claude/plans/i-want-to-c
 
 **Goal:** introduce a `Screen` enum and the post-combat transition.
 
-- [ ] Add `Screen` enum to `src/game_state.py`: `COMBAT`, `COMBAT_RESULT`, `GAME_OVER`, `VICTORY` (more added in later milestones)
-- [ ] Refactor `main.py` main loop to dispatch render/input by `game_state.screen`
-- [ ] Build `COMBAT_RESULT` screen: shows Win/Flee/Defeat, Score delta, `score / target`, "Continue" button
-- [ ] Build `GAME_OVER` and `VICTORY` screens with final stats + "Back to Menu" (menu can be a placeholder for now)
-- [ ] Combat end transitions to the correct screen based on win/loss/target
+- [x] Add `Screen` enum to `src/game_state.py`: `COMBAT`, `COMBAT_RESULT`, `GAME_OVER`, `VICTORY` (more added in later milestones)
+- [x] Refactor `main.py` main loop to dispatch render/input by `game_state.screen`
+- [x] Build `COMBAT_RESULT` screen: shows Win/Flee/Defeat, Score delta, `score / target`, "Continue" button
+- [x] Build `GAME_OVER` and `VICTORY` screens with final stats + "Back to Menu" (menu can be a placeholder for now)
+- [x] Combat end transitions to the correct screen based on win/loss/target
 
 **Accepts:** game flows COMBAT → COMBAT_RESULT → (back to COMBAT with a fresh enemy) without crashes.
 

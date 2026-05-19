@@ -72,6 +72,24 @@ Completed tasks. Archived for reference only; consult when prior work is specifi
 - [x] Per-ship base accuracy: Player 70, Enemy 40 (was shared 70)
 - [x] Fire button moved to bottom-center (y = WINDOW_HEIGHT - 70)
 
+## Milestone 2 — Screen State Machine & Combat Result Screen
+
+- [x] `Screen` enum added to `src/game_state.py`: `COMBAT`, `COMBAT_RESULT`, `GAME_OVER`, `VICTORY`
+- [x] `GameState` gains `screen`, `last_combat_result` fields and `reset_for_combat()` method
+- [x] `RunState` gains `last_score_delta` field; `award_combat_score()` stores it for display
+- [x] `main.py` main loop refactored to dispatch render/input by `game_state.screen`
+- [x] `COMBAT_RESULT` screen: shows combat number, score delta (+N), running total, Continue button
+- [x] `GAME_OVER` screen: final score, combats survived, Quit button
+- [x] `VICTORY` screen: same layout in green, Quit button
+- [x] `start_next_combat()`: swaps enemy sprite, calls `reset_for_combat()`, respects debug reveal
+- [x] 6 new unit tests (4 GameState, 2 RunState); 81 total passing
+
+## Debug Mode Accelerators
+
+- [x] Instant enemy turn: in debug mode (F1) enemy fires on the next frame, no 2-second wait
+- [x] Auto-Kill toggle (D key or button to the right of Fire): when ON, the normal Fire action always hits and always destroys the selected compartment; player still selects target and fires manually
+- [x] Toggle renders gold ("Auto-Kill: ON") when active; resets to OFF when F1 exits debug mode
+
 ## Milestone 1 — Run State & Score Tracking
 
 - [x] `src/run_state.py`: `RunState` dataclass with `combat_count`, `score`, `target_score=120`, `owned_upgrades`, `consumables`, `pending_morale_penalty`, `scan_next_enemy`
