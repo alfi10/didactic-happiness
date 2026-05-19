@@ -271,7 +271,6 @@ while running:
         hovered_compartment = get_compartment_at(enemy, mouse_x, mouse_y)
 
     for event in pygame.event.get():
-        global debug_auto_kill
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
