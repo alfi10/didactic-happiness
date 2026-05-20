@@ -68,10 +68,10 @@ Full design rationale lives in the approved plan at `~/.claude/plans/i-want-to-c
 
 **Goal:** let the player exit combat early at a cost.
 
-- [ ] Add "Flee" button to combat UI, active from turn 2 onward
-- [ ] On flee: `combat_count++`, `pending_morale_penalty = 15`, transition to COMBAT_RESULT (flee variant — different copy, 0 Score)
-- [ ] At next combat start, apply `pending_morale_penalty` to player morale and clear it
-- [ ] Flee still routes through the non-combat action screen
+- [x] Add "Flee" button to combat UI, active from turn 2 onward
+- [x] On flee: `combat_count++`, `pending_morale_penalty = 15`, transition to COMBAT_RESULT (flee variant — different copy, 0 Score)
+- [x] At next combat start, apply `pending_morale_penalty` to player morale and clear it
+- [x] Flee still routes through the non-combat action screen
 
 **Accepts:** mid-fight flee returns player to result → action → fresh combat with morale −15 carried over.
 

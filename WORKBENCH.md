@@ -6,9 +6,9 @@ Agent workbench for **didactic-happiness**. **Task** = current task. When it is 
 
 ## Task
 
-**Milestone 4 — Flee Mechanic** (see [ROADMAP.md](ROADMAP.md))
+**Milestone 5 — Shop Every 5 Combats** (see [ROADMAP.md](ROADMAP.md))
 
-Add a "Flee" button to combat UI (active from turn 2 onward). Fleeing always succeeds: combat_count increments, pending morale penalty of −15 is applied at next combat start, and 0 Score is earned. Routes through the non-combat action screen like a normal win.
+Shop appears after the non-combat action screen on every 5th combat (5, 10, 15…). Fixed inventory of 6 items (3 upgrades, 3 consumables). Buy buttons deduct Score; "Leave Shop" advances to next combat.
 
 ---
 

@@ -72,6 +72,16 @@ Completed tasks. Archived for reference only; consult when prior work is specifi
 - [x] Per-ship base accuracy: Player 70, Enemy 40 (was shared 70)
 - [x] Fire button moved to bottom-center (y = WINDOW_HEIGHT - 70)
 
+## Milestone 4 — Flee Mechanic
+
+- [x] Flee button to the left of Fire button, active from turn 2 (warm orange), dimmed before
+- [x] `perform_flee()`: calls `run_state.register_flee()`, sets `last_combat_result = "flee"`, transitions to COMBAT_RESULT
+- [x] `RunState.register_flee()`: combat_count++, pending_morale_penalty = 15, last_score_delta = 0
+- [x] `RunState.consume_pending_morale_penalty()`: returns and clears the penalty
+- [x] `start_next_combat()` applies pending morale penalty to player and resets `last_combat_result = "win"`
+- [x] COMBAT_RESULT flee variant: "Combat N Abandoned / Fled — +0 Score / Morale −15 applied at next combat"
+- [x] 5 new unit tests; 94 total passing
+
 ## Milestone 3 — Non-Combat Action Screen
 
 - [x] `src/non_combat.py`: `NonCombatAction` dataclass with 4 instances — Patch Hull, Field Repair, Rally Crew, Recon Drone
