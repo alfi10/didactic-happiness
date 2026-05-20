@@ -7,6 +7,7 @@ from src.intel import format_enemy_hp, display_hp_ratio, hp_visible
 from src.run_state import RunState
 from src.compartments import DESTROY_BONUS_DAMAGE, SystemType
 from src.non_combat import ACTIONS as NON_COMBAT_ACTIONS
+from src.shop import SHOP_ITEMS
 
 pygame.init()
 
@@ -28,6 +29,11 @@ FLEE_BUTTON_WIDTH = 120
 ACTION_BUTTON_WIDTH = 260
 ACTION_BUTTON_HEIGHT = 44
 ACTION_SLOT_HEIGHT = 82
+SHOP_ROW_H = 68
+SHOP_ROW_GAP = 6
+SHOP_ROW_W = 680
+SHOP_BUY_W = 100
+SHOP_BUY_H = 36
 
 
 def fire_button_rect():
@@ -74,6 +80,22 @@ def action_button_rects():
                     ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT)
         for i in range(len(NON_COMBAT_ACTIONS))
     ]
+
+def shop_row_rects():
+    start_y = 75
+    cx = WINDOW_WIDTH // 2
+    result = []
+    for i in range(len(SHOP_ITEMS)):
+        y = start_y + i * (SHOP_ROW_H + SHOP_ROW_GAP)
+        card = pygame.Rect(cx - SHOP_ROW_W // 2, y, SHOP_ROW_W, SHOP_ROW_H)
+        buy = pygame.Rect(card.right - SHOP_BUY_W - 8,
+                          card.centery - SHOP_BUY_H // 2,
+                          SHOP_BUY_W, SHOP_BUY_H)
+        result.append((card, buy))
+    return result
+
+def leave_shop_button_rect():
+    return pygame.Rect(WINDOW_WIDTH // 2 - 80, WINDOW_HEIGHT - 56, 160, 44)
 
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("didactic-happiness")
@@ -276,6 +298,67 @@ def start_next_combat():
         player.change_morale(-penalty)
 
 
+def get_item_stacks(item):
+    if item.kind == "upgrade":
+        return run_state.owned_upgrades.get(item.name, 0)
+    return run_state.consumables.get(item.name, 0)
+
+def can_buy(item):
+    stacks = get_item_stacks(item)
+    return (run_state.score >= item.cost and
+            (item.max_stacks is None or stacks < item.max_stacks))
+
+def buy_item(item):
+    if not can_buy(item):
+        return
+    run_state.score -= item.cost
+    item.apply(run_state, player)
+    if item.kind == "upgrade":
+        run_state.owned_upgrades[item.name] = get_item_stacks(item) + 1
+    else:
+        run_state.consumables[item.name] = get_item_stacks(item) + 1
+
+
+def render_shop():
+    screen.fill((20, 20, 40))
+    header = font.render("Shop", True, (220, 180, 80))
+    screen.blit(header, (WINDOW_WIDTH // 2 - header.get_width() // 2, 22))
+    score_surf = small_font.render(
+        f"Score: {run_state.score} / {run_state.target_score}", True, (200, 200, 200))
+    screen.blit(score_surf, (WINDOW_WIDTH // 2 - score_surf.get_width() // 2, 50))
+
+    for item, (card, buy) in zip(SHOP_ITEMS, shop_row_rects()):
+        stacks = get_item_stacks(item)
+        affordable = can_buy(item)
+        card_color = (35, 35, 60) if affordable else (28, 28, 45)
+        pygame.draw.rect(screen, card_color, card)
+        pygame.draw.rect(screen, (70, 70, 100), card, 1)
+
+        name_surf = small_font.render(item.name, True, (220, 220, 255))
+        screen.blit(name_surf, (card.x + 10, card.y + 6))
+
+        desc_surf = small_font.render(item.description, True, (150, 150, 180))
+        screen.blit(desc_surf, (card.x + 10, card.y + 26))
+
+        kind_tag = "UPG" if item.kind == "upgrade" else "USE"
+        stack_str = f"[{kind_tag}]  owned: {stacks}"
+        if item.max_stacks:
+            stack_str += f" / {item.max_stacks}"
+        stack_surf = small_font.render(stack_str, True, (120, 120, 140))
+        screen.blit(stack_surf, (card.x + 10, card.y + 46))
+
+        buy_bg = (50, 130, 80) if affordable else (45, 45, 45)
+        buy_bd = (80, 180, 110) if affordable else (65, 65, 65)
+        pygame.draw.rect(screen, buy_bg, buy)
+        pygame.draw.rect(screen, buy_bd, buy, 2)
+        buy_col = (255, 255, 255) if affordable else (90, 90, 90)
+        cost_surf = small_font.render(f"{item.cost} pts", True, buy_col)
+        screen.blit(cost_surf, (buy.centerx - cost_surf.get_width() // 2,
+                                buy.centery - cost_surf.get_height() // 2))
+
+    draw_button(screen, leave_shop_button_rect(), "Leave Shop")
+
+
 def render_combat_result():
     screen.fill((20, 20, 40))
     if game_state.last_combat_result == "flee":
@@ -372,8 +455,18 @@ while running:
                 for action, rect in zip(NON_COMBAT_ACTIONS, action_button_rects()):
                     if rect.collidepoint(mouse_x, mouse_y):
                         action.apply(run_state, player)
-                        start_next_combat()
+                        if run_state.combat_count % 5 == 0:
+                            game_state.screen = Screen.SHOP
+                        else:
+                            start_next_combat()
                         break
+            elif game_state.screen == Screen.SHOP:
+                for item, (card, buy) in zip(SHOP_ITEMS, shop_row_rects()):
+                    if buy.collidepoint(mouse_x, mouse_y):
+                        buy_item(item)
+                        break
+                if leave_shop_button_rect().collidepoint(mouse_x, mouse_y):
+                    start_next_combat()
             elif game_state.screen in (Screen.GAME_OVER, Screen.VICTORY):
                 if quit_button_rect().collidepoint(mouse_x, mouse_y):
                     running = False
@@ -469,6 +562,9 @@ while running:
 
     elif game_state.screen == Screen.NON_COMBAT_ACTION:
         render_non_combat_action()
+
+    elif game_state.screen == Screen.SHOP:
+        render_shop()
 
     elif game_state.screen == Screen.GAME_OVER:
         render_game_over()
