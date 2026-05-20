@@ -72,6 +72,17 @@ Completed tasks. Archived for reference only; consult when prior work is specifi
 - [x] Per-ship base accuracy: Player 70, Enemy 40 (was shared 70)
 - [x] Fire button moved to bottom-center (y = WINDOW_HEIGHT - 70)
 
+## Milestone 3 — Non-Combat Action Screen
+
+- [x] `src/non_combat.py`: `NonCombatAction` dataclass with 4 instances — Patch Hull, Field Repair, Rally Crew, Recon Drone
+- [x] `Screen.NON_COMBAT_ACTION` added to the enum in `src/game_state.py`
+- [x] `action_button_rects()` helper and `render_non_combat_action()` screen in `main.py`
+- [x] COMBAT_RESULT Continue button now routes to NON_COMBAT_ACTION instead of spawning directly
+- [x] Action click applies effect then calls `start_next_combat()`
+- [x] `start_next_combat()` honors `RunState.scan_next_enemy` (clears flag after use)
+- [x] 7 unit tests in `tests/test_non_combat.py`; 89 total passing
+- [x] MVP loop closed: combat → result → action → new enemy → repeat
+
 ## Milestone 2 — Screen State Machine & Combat Result Screen
 
 - [x] `Screen` enum added to `src/game_state.py`: `COMBAT`, `COMBAT_RESULT`, `GAME_OVER`, `VICTORY`

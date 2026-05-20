@@ -6,9 +6,9 @@ Agent workbench for **didactic-happiness**. **Task** = current task. When it is 
 
 ## Task
 
-**Milestone 3 — Non-Combat Action Screen** (see [ROADMAP.md](ROADMAP.md))
+**Milestone 4 — Flee Mechanic** (see [ROADMAP.md](ROADMAP.md))
 
-Insert a mandatory between-combat action screen after every COMBAT_RESULT. Player picks one of four free actions (Patch Hull, Field Repair, Rally Crew, Recon Drone), effect applies, then the next enemy spawns. This closes the MVP loop: combat → result → action → new enemy → repeat.
+Add a "Flee" button to combat UI (active from turn 2 onward). Fleeing always succeeds: combat_count increments, pending morale penalty of −15 is applied at next combat start, and 0 Score is earned. Routes through the non-combat action screen like a normal win.
 
 ---
 

@@ -50,15 +50,15 @@ Full design rationale lives in the approved plan at `~/.claude/plans/i-want-to-c
 
 **Goal:** insert mandatory non-combat action between combats. **(Closes the MVP loop.)**
 
-- [ ] Create `src/non_combat.py` with `NonCombatAction` dataclass and 4 instances:
+- [x] Create `src/non_combat.py` with `NonCombatAction` dataclass and 4 instances:
   - **Patch Hull** — restore 30 HP (capped at max)
   - **Field Repair** — restore one destroyed compartment to half HP
   - **Rally Crew** — set morale to 70 (no-op if already ≥70)
   - **Recon Drone** — set `RunState.scan_next_enemy = True` (consumed at next combat spawn)
-- [ ] Add `NON_COMBAT_ACTION` to `Screen` enum
-- [ ] Render four buttons; on click apply effect and advance to next combat
-- [ ] Implement `spawn_next_enemy()` helper that resets turn counter and intel state; honors `scan_next_enemy` flag
-- [ ] Transition: COMBAT_RESULT → NON_COMBAT_ACTION → COMBAT
+- [x] Add `NON_COMBAT_ACTION` to `Screen` enum
+- [x] Render four buttons; on click apply effect and advance to next combat
+- [x] Implement `spawn_next_enemy()` helper that resets turn counter and intel state; honors `scan_next_enemy` flag
+- [x] Transition: COMBAT_RESULT → NON_COMBAT_ACTION → COMBAT
 
 **Accepts:** after any victory the player chooses one of four actions, then a new enemy appears with the effect applied.
 
