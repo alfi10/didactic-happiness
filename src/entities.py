@@ -28,6 +28,7 @@ class Ship(pygame.sprite.Sprite):
         self.max_hp = hp
         self.morale = DEFAULT_MORALE
         self.base_accuracy = base_accuracy
+        self.destroy_chance_bonus = 0.0
         self.force_reveal = False
         self.compartments = []
         self.image = pygame.Surface((SHIP_SIZE, SHIP_SIZE))

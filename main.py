@@ -7,7 +7,7 @@ from src.intel import format_enemy_hp, display_hp_ratio, hp_visible
 from src.run_state import RunState
 from src.compartments import DESTROY_BONUS_DAMAGE, SystemType
 from src.non_combat import ACTIONS as NON_COMBAT_ACTIONS
-from src.shop import SHOP_ITEMS
+from src.shop import SHOP_ITEMS, use_repair_kit, use_morale_broadcast, use_sensor_ping
 
 pygame.init()
 
@@ -34,6 +34,10 @@ SHOP_ROW_GAP = 6
 SHOP_ROW_W = 680
 SHOP_BUY_W = 100
 SHOP_BUY_H = 36
+CONSUMABLE_BUTTON_WIDTH = 150
+CONSUMABLE_BUTTON_HEIGHT = 36
+CONSUMABLE_BUTTON_GAP = 10
+CONSUMABLE_STRIP_Y = WINDOW_HEIGHT - 126
 
 
 def fire_button_rect():
@@ -96,6 +100,27 @@ def shop_row_rects():
 
 def leave_shop_button_rect():
     return pygame.Rect(WINDOW_WIDTH // 2 - 80, WINDOW_HEIGHT - 56, 160, 44)
+
+
+def combat_consumable_items():
+    return [
+        item for item in SHOP_ITEMS
+        if item.kind == "consumable" and run_state.consumables.get(item.name, 0) > 0
+    ]
+
+
+def combat_consumable_button_rects(items):
+    total_width = len(items) * CONSUMABLE_BUTTON_WIDTH + max(0, len(items) - 1) * CONSUMABLE_BUTTON_GAP
+    start_x = WINDOW_WIDTH // 2 - total_width // 2
+    return [
+        pygame.Rect(
+            start_x + i * (CONSUMABLE_BUTTON_WIDTH + CONSUMABLE_BUTTON_GAP),
+            CONSUMABLE_STRIP_Y,
+            CONSUMABLE_BUTTON_WIDTH,
+            CONSUMABLE_BUTTON_HEIGHT,
+        )
+        for i in range(len(items))
+    ]
 
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("didactic-happiness")
@@ -193,6 +218,29 @@ def draw_button(surface, rect, label):
     text = small_font.render(label, True, (255, 255, 255))
     surface.blit(text, (rect.centerx - text.get_width() // 2,
                         rect.centery - text.get_height() // 2))
+
+
+def draw_combat_consumables(surface, game_state):
+    items = combat_consumable_items()
+    if not items:
+        return
+    active_turn = game_state.is_player_turn()
+    header = small_font.render("Consumables", True, (180, 180, 220))
+    rects = combat_consumable_button_rects(items)
+    first_rect = rects[0]
+    surface.blit(header, (WINDOW_WIDTH // 2 - header.get_width() // 2, first_rect.y - 22))
+    for item, rect in zip(items, rects):
+        count = run_state.consumables[item.name]
+        bg_color = (50, 100, 180) if active_turn else (45, 45, 55)
+        border_color = (80, 140, 220) if active_turn else (70, 70, 85)
+        text_color = (255, 255, 255) if active_turn else (120, 120, 130)
+        pygame.draw.rect(surface, bg_color, rect)
+        pygame.draw.rect(surface, border_color, rect, 2)
+        label = small_font.render(f"{item.name} x{count}", True, text_color)
+        surface.blit(
+            label,
+            (rect.centerx - label.get_width() // 2, rect.centery - label.get_height() // 2),
+        )
 
 
 def draw_fire_button(surface, game_state):
@@ -319,6 +367,27 @@ def buy_item(item):
         run_state.consumables[item.name] = get_item_stacks(item) + 1
 
 
+def use_combat_consumable(item_name):
+    if not (game_state.screen == Screen.COMBAT and game_state.is_player_turn()):
+        return False
+    if item_name == "Repair Kit":
+        return use_repair_kit(run_state, player)
+    if item_name == "Morale Broadcast":
+        return use_morale_broadcast(run_state, player)
+    if item_name == "Sensor Ping":
+        return use_sensor_ping(run_state, enemy)
+    return False
+
+
+def handle_combat_consumable_click(mouse_x, mouse_y):
+    items = combat_consumable_items()
+    for item, rect in zip(items, combat_consumable_button_rects(items)):
+        if rect.collidepoint(mouse_x, mouse_y):
+            use_combat_consumable(item.name)
+            return True
+    return False
+
+
 def render_shop():
     screen.fill((20, 20, 40))
     header = font.render("Shop", True, (220, 180, 80))
@@ -439,7 +508,9 @@ while running:
                 debug_auto_kill = not debug_auto_kill
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if game_state.screen == Screen.COMBAT and game_state.is_player_turn():
-                if flee_button_rect().collidepoint(mouse_x, mouse_y) and game_state.turn_count >= 2:
+                if handle_combat_consumable_click(mouse_x, mouse_y):
+                    pass
+                elif flee_button_rect().collidepoint(mouse_x, mouse_y) and game_state.turn_count >= 2:
                     perform_flee()
                 elif fire_button_rect().collidepoint(mouse_x, mouse_y) and game_state.selected_compartment:
                     perform_fire()
@@ -541,6 +612,7 @@ while running:
 
         draw_fire_button(screen, game_state)
         draw_flee_button(screen, game_state)
+        draw_combat_consumables(screen, game_state)
         if game_state.debug_mode:
             label = "Auto-Kill: ON" if debug_auto_kill else "Auto-Kill (D)"
             bg = (180, 140, 0) if debug_auto_kill else (50, 100, 180)

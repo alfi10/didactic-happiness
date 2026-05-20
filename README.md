@@ -31,7 +31,7 @@ Combat → Combat Result → Non-Combat Action → [Shop every 5th] → New Enem
 6. **Combat Result** — Win earns Score (`tier_base + HP bonus`). Defeat ends the run.
 7. **Non-Combat Action** — Pick one free action: Patch Hull (+30 HP), Field Repair (restore a compartment), Rally Crew (morale → 70), or Recon Drone (reveal next enemy layout).
 8. **Shop** — Appears after combats 5, 10, 15… Spend Score on permanent upgrades or single-use consumables.
-9. **New Enemy** — Difficulty scales by combat count (T1 Scout → T2 Frigate → T3 Cruiser).
+9. **New Enemy** — A fresh enemy ship spawns for the next combat. Tiered enemy progression is planned for a later milestone.
 10. **Win** — Reach Score 120 before your ship is destroyed.
 
 ---
@@ -82,7 +82,7 @@ Score is earned by winning combats and spent at the shop. It is the win conditio
 
 ### Shop & Upgrades
 
-The shop opens every 5th combat. **Upgrades** are permanent for the run; **consumables** are single-use, held in your pouch and usable mid-combat.
+The shop opens every 5th combat. The current build includes the full shop screen, fixed inventory, Score spending, stack limits, and persistent purchase tracking in `RunState`. Item combat effects are the next milestone, so purchases are currently recorded but still use stubbed `apply()` functions.
 
 **Upgrades (stackable):**
 
@@ -96,7 +96,7 @@ The shop opens every 5th combat. **Upgrades** are permanent for the run; **consu
 
 | Name | Cost | Effect |
 |------|------|--------|
-| Emergency Repair Kit | 8 | +25 HP, usable in combat |
+| Repair Kit | 8 | +25 HP, usable in combat |
 | Morale Broadcast | 6 | Morale → 80, usable in combat |
 | Sensor Ping | 5 | Reveal one hidden enemy compartment |
 
@@ -114,6 +114,7 @@ Information discovered persists — you learn the enemy's composition, strengths
 
 - **Language:** Python 3.x
 - **Engine:** Pygame
+- **Package metadata:** `pyproject.toml`
 - **Entry point:** `python main.py`
 
 ---
@@ -122,17 +123,25 @@ Information discovered persists — you learn the enemy's composition, strengths
 
 ```bash
 # Install dependencies
-pip install -r requirements.txt
+uv sync
 
 # Start the game
-python main.py
+uv run main.py
 ```
+
+If you prefer plain `pip`, install `pygame` manually and run `python main.py`.
+
+---
+
+## Current Status
+
+Milestones 1-5 are implemented: score tracking, post-combat flow, non-combat actions, fleeing, and the shop shell. Milestone 6 is next, which will make upgrades and consumables affect combat directly.
 
 ---
 
 ## References
 
-- **Agent guide:** [CLAUDE.md](CLAUDE.md) — conventions, structure, how to run this project
+- **Agent guide:** [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md) — conventions, structure, and execution notes
 - **Active task:** [WORKBENCH.md](WORKBENCH.md) — what's being built right now
 - **Feature roadmap:** [ROADMAP.md](ROADMAP.md) — upcoming milestones in order
 - **Workflow:** [WORKFLOW.md](WORKFLOW.md) — branching, commits, and shipping rules

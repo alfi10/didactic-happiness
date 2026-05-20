@@ -16,8 +16,11 @@ class CombatSystem:
     def fire(target_compartment: Compartment, target_ship=None, attacker_ship=None) -> tuple[bool, int]:
         if attacker_ship is not None:
             threshold = attacker_ship.base_accuracy + attacker_ship.accuracy_modifier()
+            destroy_chance = CombatSystem.DESTROY_CHANCE + attacker_ship.destroy_chance_bonus
         else:
             threshold = CombatSystem.BASE_ACCURACY
+            destroy_chance = CombatSystem.DESTROY_CHANCE
+        destroy_chance = min(1.0, max(0.0, destroy_chance))
 
         roll = random.randint(0, 100)
         hit = roll <= threshold
@@ -37,7 +40,7 @@ class CombatSystem:
             return True, damage
 
         target_compartment.hp = max(0, target_compartment.hp - CombatSystem.BASE_DAMAGE)
-        destroyed_by_roll = random.random() < CombatSystem.DESTROY_CHANCE
+        destroyed_by_roll = random.random() < destroy_chance
         if destroyed_by_roll:
             target_compartment.hp = 0
 

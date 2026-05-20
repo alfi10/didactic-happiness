@@ -15,13 +15,13 @@
 
 ```bash
 # Install dependencies
-pip install -r requirements.txt
+uv sync
 
 # Start the game
-python main.py
+uv run main.py
 ```
 
-**Requirements file** (`requirements.txt`): Add `pygame` and any other dependencies needed.
+**Project metadata:** dependencies live in `pyproject.toml`.
 
 **Environment:** Standard Python. No special variables required.
 
@@ -40,10 +40,11 @@ didactic-happiness/
     intel.py              # Enemy HP fog-of-war; hidden until turn 5, precise from turn 10
     run_state.py          # RunState: Score, combat_count, upgrades, consumables (added in M1)
     non_combat.py         # NonCombatAction set — Patch Hull, Field Repair, Rally, Recon (M3)
-    shop.py               # ShopItem catalogue — 3 upgrades, 3 consumables (M5/M6)
+    shop.py               # ShopItem catalogue and shop item effect hooks (M5/M6)
     enemies.py            # EnemyTemplate + spawn_enemy_for_combat() factory (M7)
   assets/                 # Sprites, images
   tests/                  # Unit tests
+  pyproject.toml          # Project metadata and dependencies
 ```
 
 _Files marked (M#) do not exist yet; they are created in the listed milestone._

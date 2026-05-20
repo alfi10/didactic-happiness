@@ -68,7 +68,7 @@ Full design rationale lives in the approved plan at `~/.claude/plans/i-want-to-c
 
 **Goal:** let the player exit combat early at a cost.
 
-- [x] Add "Flee" button to combat UI, active from turn 2 onward
+- [x] Add "Flee" button to combat UI, active once `turn_count >= 2` on the player's turn
 - [x] On flee: `combat_count++`, `pending_morale_penalty = 15`, transition to COMBAT_RESULT (flee variant — different copy, 0 Score)
 - [x] At next combat start, apply `pending_morale_penalty` to player morale and clear it
 - [x] Flee still routes through the non-combat action screen
@@ -81,11 +81,11 @@ Full design rationale lives in the approved plan at `~/.claude/plans/i-want-to-c
 
 **Goal:** shop appears at combats 5, 10, 15… with fixed inventory and Score deduction.
 
-- [ ] Create `src/shop.py` with `ShopItem` dataclass (`name`, `kind`, `cost`, `max_stacks`, `apply`) and a fixed inventory of 6 items (3 upgrades, 3 consumables — effects stubbed for M6)
-- [ ] Add `SHOP` to `Screen` enum
-- [ ] After NON_COMBAT_ACTION, if `combat_count % 5 == 0`, route to SHOP before next COMBAT
-- [ ] Render 6 items in a grid: name, cost, effect, current stack, Buy button + a "Leave Shop" button (always available)
-- [ ] Buy deducts Score; disable button when unaffordable or stack maxed
+- [x] Create `src/shop.py` with `ShopItem` dataclass (`name`, `kind`, `cost`, `max_stacks`, `apply`) and a fixed inventory of 6 items (3 upgrades, 3 consumables — effects stubbed for M6)
+- [x] Add `SHOP` to `Screen` enum
+- [x] After NON_COMBAT_ACTION, if `combat_count % 5 == 0`, route to SHOP before next COMBAT
+- [x] Render 6 items in a grid: name, cost, effect, current stack, Buy button + a "Leave Shop" button (always available)
+- [x] Buy deducts Score; disable button when unaffordable or stack maxed
 
 **Accepts:** after the 5th combat (and every 5 thereafter) the shop opens; Score deducts on buy; leaving advances to next combat.
 

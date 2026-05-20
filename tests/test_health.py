@@ -15,6 +15,7 @@ def test_ship_initial_hp():
     ship = Ship(0, 0)
     assert ship.hp == DEFAULT_SHIP_HP
     assert ship.max_hp == DEFAULT_SHIP_HP
+    assert ship.destroy_chance_bonus == 0.0
 
 
 def test_take_damage_reduces_hp():

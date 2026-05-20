@@ -167,3 +167,27 @@ def test_enemy_low_base_accuracy(monkeypatch):
     target_comp = player.compartments[0]
     hit, _ = CombatSystem.fire(target_comp, player, enemy)
     assert hit is False
+
+
+def test_destroy_chance_bonus_applied(monkeypatch):
+    monkeypatch.setattr(random, "randint", lambda a, b: 0)
+    monkeypatch.setattr(random, "random", lambda: 0.40)
+    attacker = Ship(0, 0)
+    attacker.destroy_chance_bonus = 0.10
+    target_ship = Ship(0, 0, hp=200)
+    comp = target_ship.compartments[0]
+    hit, damage = CombatSystem.fire(comp, target_ship, attacker)
+    assert hit is True
+    assert comp.active is False
+    assert damage == CombatSystem.BASE_DAMAGE + DESTROY_BONUS_DAMAGE[comp.system_type]
+
+
+def test_default_destroy_chance_unchanged_without_attacker_bonus(monkeypatch):
+    monkeypatch.setattr(random, "randint", lambda a, b: 0)
+    monkeypatch.setattr(random, "random", lambda: 0.40)
+    target_ship = Ship(0, 0, hp=200)
+    comp = target_ship.compartments[0]
+    hit, damage = CombatSystem.fire(comp, target_ship)
+    assert hit is True
+    assert comp.active is True
+    assert damage == CombatSystem.BASE_DAMAGE

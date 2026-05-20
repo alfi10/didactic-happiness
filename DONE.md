@@ -2,6 +2,15 @@
 
 Completed tasks. Archived for reference only; consult when prior work is specifically relevant to your current task.
 
+## Milestone 5 — Shop Every 5 Combats
+
+- [x] `src/shop.py`: `ShopItem` dataclass plus fixed inventory of 6 items (3 upgrades, 3 consumables) with stubbed `apply()` hooks for M6
+- [x] `Screen.SHOP` added to `src/game_state.py`
+- [x] Shop routing added after NON_COMBAT_ACTION whenever `combat_count % 5 == 0`
+- [x] `render_shop()` added in `main.py` with item cards, cost buttons, owned stack display, and "Leave Shop"
+- [x] `buy_item()` deducts Score, enforces affordability and stack caps, and records owned upgrades / consumables in `RunState`
+- [x] 7 unit tests in `tests/test_shop.py`; suite now at 102 passing tests
+
 ## Entities — Compartments
 
 - [x] Design sprite partition scheme: 3×3 grid mapping to hull, crew, weapons regions

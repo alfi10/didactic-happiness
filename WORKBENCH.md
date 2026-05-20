@@ -6,9 +6,9 @@ Agent workbench for **didactic-happiness**. **Task** = current task. When it is 
 
 ## Task
 
-**Milestone 5 — Shop Every 5 Combats** (see [ROADMAP.md](ROADMAP.md))
+**Milestone 6 — Upgrades and Consumables Effects** (see [ROADMAP.md](ROADMAP.md))
 
-Shop appears after the non-combat action screen on every 5th combat (5, 10, 15…). Fixed inventory of 6 items (3 upgrades, 3 consumables). Buy buttons deduct Score; "Leave Shop" advances to next combat.
+The shop shell is in place. Next, make purchases affect combat for real: permanent upgrades should modify player stats, consumables should be tracked in `RunState` and become usable during combat, and Sensor Ping should reveal hidden enemy information.
 
 ---
 
