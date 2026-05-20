@@ -1,6 +1,6 @@
 # Roadmap
 
-Long-term feature plan. Agents: consult this when BACKLOG is empty or when pulling the next feature into the workbench.
+Long-term feature plan. Agents: consult this as the source of truth for completed milestones and the next feature to build.
 
 The goal of this roadmap is to **close the game loop**: combat → result → non-combat action → (shop every 5th) → new enemy → repeat until target Score or destruction. **Score is both the win condition and the shop currency.**
 
@@ -107,14 +107,14 @@ Full design rationale lives in the approved plan at `~/.claude/plans/i-want-to-c
 
 | Name | Cost | Effect |
 |------|------|--------|
-| Emergency Repair Kit | 8 | Restore 25 HP, usable during combat |
+| Repair Kit | 8 | Restore 25 HP, usable during combat |
 | Morale Broadcast | 6 | Set morale to 80, usable during combat |
 | Sensor Ping | 5 | Reveal one random hidden enemy compartment |
 
-- [ ] Implement each `apply()` in `src/shop.py`
-- [ ] Upgrades modify `Player` stats directly (`base_accuracy`, `max_hp`); destroy-chance modifier threaded through `CombatSystem.fire()`
-- [ ] Consumables stored in `RunState.consumables`; add in-combat UI buttons for Repair Kit and Morale Broadcast
-- [ ] Sensor Ping usable from shop screen or in combat
+- [x] Implement each `apply()` in `src/shop.py`
+- [x] Upgrades modify `Player` stats directly (`base_accuracy`, `max_hp`); destroy-chance modifier threaded through `CombatSystem.fire()`
+- [x] Consumables stored in `RunState.consumables`; add in-combat UI for owned consumables
+- [x] Sensor Ping usable in combat
 
 **Accepts:** buying Weapon Calibration ×2 measurably raises hit rate; Reinforced Hull bumps the HP bar; consumables fire mid-combat.
 
@@ -143,7 +143,7 @@ Full design rationale lives in the approved plan at `~/.claude/plans/i-want-to-c
 - [ ] Victory / Game Over screens show full stats (combat_count, final Score, upgrades owned)
 - [ ] Sound effects (optional, low priority)
 - [ ] Balance pass: play 3 full runs end-to-end; tune tier rewards, shop prices, or target Score if pacing is off
-- [ ] Update [DONE.md](DONE.md) as each milestone lands; clear [WORKBENCH.md](WORKBENCH.md) when M8 ships
+- [ ] Update [DONE.md](DONE.md) as each milestone lands
 
 **Accepts:** a tester can launch from menu, complete a full win-condition run, and see closing stats.
 

@@ -2,6 +2,16 @@
 
 Completed tasks. Archived for reference only; consult when prior work is specifically relevant to your current task.
 
+## Milestone 6 — Upgrades and Consumables Effects
+
+- [x] `Ship` / `Player` gained a persistent `destroy_chance_bonus` stat for upgrade-driven combat effects
+- [x] `CombatSystem.fire()` now respects attacker destroy-chance bonuses while keeping the baseline chance for attackers without upgrades
+- [x] `src/shop.py` applies real upgrade effects for Weapon Calibration, Reinforced Hull, and Targeting AI
+- [x] Consumables are tracked in `RunState.consumables` and can be used during combat as free actions
+- [x] `main.py` renders a compact combat consumables strip for owned Repair Kit, Morale Broadcast, and Sensor Ping
+- [x] Sensor Ping reveals one hidden enemy compartment and safely no-ops when nothing remains hidden
+- [x] 13 new tests landed across combat, health, and shop coverage; suite now at 115 passing tests
+
 ## Milestone 5 — Shop Every 5 Combats
 
 - [x] `src/shop.py`: `ShopItem` dataclass plus fixed inventory of 6 items (3 upgrades, 3 consumables) with stubbed `apply()` hooks for M6

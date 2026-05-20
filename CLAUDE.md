@@ -64,7 +64,6 @@ _Files marked (M#) do not exist yet; they are created in the listed milestone._
 ## References
 
 - **Project design & decisions:** [README.md](README.md) — design decisions, behavior specs, and project-specific notes
-- **Active workbench:** [WORKBENCH.md](WORKBENCH.md) — current task (Doing) and next tasks (Up next)
-- **Long-term plan:** [ROADMAP.md](ROADMAP.md) — upcoming features; consult when pulling next work into WORKBENCH
+- **Roadmap:** [ROADMAP.md](ROADMAP.md) — completed milestones and the next feature to build
 - **How to ship:** [WORKFLOW.md](WORKFLOW.md) — commit, branching, and testing rules
 - **Past work:** [DONE.md](DONE.md) — consult only when prior context is relevant

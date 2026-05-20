@@ -82,7 +82,7 @@ Score is earned by winning combats and spent at the shop. It is the win conditio
 
 ### Shop & Upgrades
 
-The shop opens every 5th combat. The current build includes the full shop screen, fixed inventory, Score spending, stack limits, and persistent purchase tracking in `RunState`. Item combat effects are the next milestone, so purchases are currently recorded but still use stubbed `apply()` functions.
+The shop opens every 5th combat. The current build includes the full shop screen, fixed inventory, Score spending, stack limits, permanent upgrade effects, and combat-usable consumables tracked in `RunState`.
 
 **Upgrades (stackable):**
 
@@ -135,14 +135,13 @@ If you prefer plain `pip`, install `pygame` manually and run `python main.py`.
 
 ## Current Status
 
-Milestones 1-5 are implemented: score tracking, post-combat flow, non-combat actions, fleeing, and the shop shell. Milestone 6 is next, which will make upgrades and consumables affect combat directly.
+Milestones 1-6 are implemented: score tracking, post-combat flow, non-combat actions, fleeing, the shop shell, and active upgrade/consumable effects. Milestone 7 is next, which adds enemy progression by combat tier.
 
 ---
 
 ## References
 
 - **Agent guide:** [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md) — conventions, structure, and execution notes
-- **Active task:** [WORKBENCH.md](WORKBENCH.md) — what's being built right now
-- **Feature roadmap:** [ROADMAP.md](ROADMAP.md) — upcoming milestones in order
+- **Feature roadmap:** [ROADMAP.md](ROADMAP.md) — completed milestones and the next feature to build
 - **Workflow:** [WORKFLOW.md](WORKFLOW.md) — branching, commits, and shipping rules
 - **Completed work:** [DONE.md](DONE.md) — archive of finished tasks
