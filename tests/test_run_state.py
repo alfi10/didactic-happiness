@@ -96,3 +96,32 @@ def test_award_score_sets_last_delta():
     rs = RunState(combat_count=1)
     rs.award_combat_score(100, 100)
     assert rs.last_score_delta == TIER1_BASE + 10
+
+
+def test_register_flee_increments_combat_count():
+    rs = RunState(combat_count=3)
+    rs.register_flee()
+    assert rs.combat_count == 4
+
+
+def test_register_flee_sets_morale_penalty():
+    rs = RunState()
+    rs.register_flee()
+    assert rs.pending_morale_penalty == 15
+
+
+def test_register_flee_zeros_score_delta():
+    rs = RunState(last_score_delta=18)
+    rs.register_flee()
+    assert rs.last_score_delta == 0
+
+
+def test_consume_pending_morale_penalty_returns_and_clears():
+    rs = RunState(pending_morale_penalty=15)
+    assert rs.consume_pending_morale_penalty() == 15
+    assert rs.pending_morale_penalty == 0
+
+
+def test_consume_pending_morale_penalty_when_zero():
+    rs = RunState()
+    assert rs.consume_pending_morale_penalty() == 0

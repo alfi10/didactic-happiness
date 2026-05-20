@@ -34,3 +34,13 @@ class RunState:
 
     def is_complete(self) -> bool:
         return self.score >= self.target_score
+
+    def register_flee(self):
+        self.combat_count += 1
+        self.pending_morale_penalty = 15
+        self.last_score_delta = 0
+
+    def consume_pending_morale_penalty(self) -> int:
+        penalty = self.pending_morale_penalty
+        self.pending_morale_penalty = 0
+        return penalty

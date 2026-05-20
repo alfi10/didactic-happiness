@@ -24,6 +24,7 @@ FIRE_BUTTON_CENTER_Y = WINDOW_HEIGHT - 70
 RESULT_BUTTON_WIDTH = 160
 RESULT_BUTTON_HEIGHT = 44
 DEBUG_KILL_BUTTON_WIDTH = 120
+FLEE_BUTTON_WIDTH = 120
 ACTION_BUTTON_WIDTH = 260
 ACTION_BUTTON_HEIGHT = 44
 ACTION_SLOT_HEIGHT = 82
@@ -46,6 +47,14 @@ def quit_button_rect():
     return pygame.Rect(WINDOW_WIDTH // 2 - RESULT_BUTTON_WIDTH // 2,
                        WINDOW_HEIGHT // 2 + 90,
                        RESULT_BUTTON_WIDTH, RESULT_BUTTON_HEIGHT)
+
+def flee_button_rect():
+    return pygame.Rect(
+        WINDOW_WIDTH // 2 - FIRE_BUTTON_WIDTH // 2 - 10 - FLEE_BUTTON_WIDTH,
+        FIRE_BUTTON_CENTER_Y - FIRE_BUTTON_HEIGHT // 2,
+        FLEE_BUTTON_WIDTH,
+        FIRE_BUTTON_HEIGHT,
+    )
 
 def debug_kill_button_rect():
     return pygame.Rect(
@@ -180,6 +189,31 @@ def draw_fire_button(surface, game_state):
         (rect.centerx - text_surf.get_width() // 2, rect.centery - text_surf.get_height() // 2),
     )
 
+def draw_flee_button(surface, game_state):
+    if game_state.is_enemy_turn():
+        return
+    rect = flee_button_rect()
+    active = game_state.turn_count >= 2
+    bg_color = (140, 90, 40) if active else (50, 50, 50)
+    border_color = (200, 140, 60) if active else (90, 90, 90)
+    text_color = (255, 255, 255) if active else (120, 120, 120)
+    pygame.draw.rect(surface, bg_color, rect)
+    pygame.draw.rect(surface, border_color, rect, 2)
+    text_surf = small_font.render("Flee", True, text_color)
+    surface.blit(
+        text_surf,
+        (rect.centerx - text_surf.get_width() // 2, rect.centery - text_surf.get_height() // 2),
+    )
+
+def perform_flee():
+    if not (game_state.is_player_turn() and game_state.turn_count >= 2):
+        return
+    run_state.register_flee()
+    game_state.last_combat_result = "flee"
+    game_state.clear_selection()
+    game_state.clear_enemy_turn()
+    game_state.screen = Screen.COMBAT_RESULT
+
 def perform_fire():
     if not (game_state.is_player_turn() and game_state.selected_compartment):
         return
@@ -236,16 +270,28 @@ def start_next_combat():
         enemy.refresh()
     run_state.scan_next_enemy = False
     game_state.reset_for_combat()
+    game_state.last_combat_result = "win"
+    penalty = run_state.consume_pending_morale_penalty()
+    if penalty:
+        player.change_morale(-penalty)
 
 
 def render_combat_result():
     screen.fill((20, 20, 40))
-    header = font.render(f"Combat {run_state.combat_count} Complete", True, (255, 220, 80))
-    screen.blit(header, (WINDOW_WIDTH // 2 - header.get_width() // 2, WINDOW_HEIGHT // 2 - 110))
-    delta = font.render(f"+{run_state.last_score_delta} Score", True, (100, 255, 100))
-    screen.blit(delta, (WINDOW_WIDTH // 2 - delta.get_width() // 2, WINDOW_HEIGHT // 2 - 50))
+    if game_state.last_combat_result == "flee":
+        header = font.render(f"Combat {run_state.combat_count} Abandoned", True, (200, 140, 60))
+        screen.blit(header, (WINDOW_WIDTH // 2 - header.get_width() // 2, WINDOW_HEIGHT // 2 - 110))
+        delta = font.render("Fled — +0 Score", True, (200, 140, 60))
+        screen.blit(delta, (WINDOW_WIDTH // 2 - delta.get_width() // 2, WINDOW_HEIGHT // 2 - 50))
+        sub = small_font.render("Morale −15 applied at next combat", True, (180, 160, 140))
+        screen.blit(sub, (WINDOW_WIDTH // 2 - sub.get_width() // 2, WINDOW_HEIGHT // 2 - 10))
+    else:
+        header = font.render(f"Combat {run_state.combat_count} Complete", True, (255, 220, 80))
+        screen.blit(header, (WINDOW_WIDTH // 2 - header.get_width() // 2, WINDOW_HEIGHT // 2 - 110))
+        delta = font.render(f"+{run_state.last_score_delta} Score", True, (100, 255, 100))
+        screen.blit(delta, (WINDOW_WIDTH // 2 - delta.get_width() // 2, WINDOW_HEIGHT // 2 - 50))
     total = small_font.render(f"Total: {run_state.score} / {run_state.target_score}", True, (200, 200, 200))
-    screen.blit(total, (WINDOW_WIDTH // 2 - total.get_width() // 2, WINDOW_HEIGHT // 2 + 10))
+    screen.blit(total, (WINDOW_WIDTH // 2 - total.get_width() // 2, WINDOW_HEIGHT // 2 + 30))
     draw_button(screen, continue_button_rect(), "Continue")
 
 
@@ -310,7 +356,9 @@ while running:
                 debug_auto_kill = not debug_auto_kill
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if game_state.screen == Screen.COMBAT and game_state.is_player_turn():
-                if fire_button_rect().collidepoint(mouse_x, mouse_y) and game_state.selected_compartment:
+                if flee_button_rect().collidepoint(mouse_x, mouse_y) and game_state.turn_count >= 2:
+                    perform_flee()
+                elif fire_button_rect().collidepoint(mouse_x, mouse_y) and game_state.selected_compartment:
                     perform_fire()
                 elif hovered_compartment:
                     game_state.select(hovered_compartment)
@@ -399,6 +447,7 @@ while running:
             pygame.draw.rect(screen, (220, 60, 60), enemy_target_rect, 2)
 
         draw_fire_button(screen, game_state)
+        draw_flee_button(screen, game_state)
         if game_state.debug_mode:
             label = "Auto-Kill: ON" if debug_auto_kill else "Auto-Kill (D)"
             bg = (180, 140, 0) if debug_auto_kill else (50, 100, 180)
