@@ -16,17 +16,18 @@ DEFAULT_MORALE = 50
 MAX_MORALE = 100
 MORALE_BASELINE = 50
 PLAYER_BASE_ACCURACY = 70
-ENEMY_BASE_ACCURACY = 40
+ENEMY_BASE_ACCURACY = 35
+DEFAULT_ENEMY_SCORE_REWARD = 12
 
 
 class Ship(pygame.sprite.Sprite):
-    def __init__(self, x, y, hp=DEFAULT_SHIP_HP, base_accuracy=PLAYER_BASE_ACCURACY):
+    def __init__(self, x, y, hp=DEFAULT_SHIP_HP, base_accuracy=PLAYER_BASE_ACCURACY, morale=DEFAULT_MORALE):
         super().__init__()
         self.x = x
         self.y = y
         self.hp = hp
         self.max_hp = hp
-        self.morale = DEFAULT_MORALE
+        self.morale = morale
         self.base_accuracy = base_accuracy
         self.destroy_chance_bonus = 0.0
         self.force_reveal = False
@@ -96,8 +97,19 @@ class Player(Ship):
 
 
 class Enemy(Ship):
-    def __init__(self, x, y):
-        super().__init__(x, y, base_accuracy=ENEMY_BASE_ACCURACY)
+    def __init__(
+        self,
+        x,
+        y,
+        hp=DEFAULT_SHIP_HP,
+        base_accuracy=ENEMY_BASE_ACCURACY,
+        morale=40,
+        score_reward=DEFAULT_ENEMY_SCORE_REWARD,
+        template_name="T1 Scout",
+    ):
+        super().__init__(x, y, hp=hp, base_accuracy=base_accuracy, morale=morale)
+        self.score_reward = score_reward
+        self.template_name = template_name
         for compartment in self.compartments:
             compartment.revealed = False
         self.refresh()

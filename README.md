@@ -31,7 +31,7 @@ Combat → Combat Result → Non-Combat Action → [Shop every 5th] → New Enem
 6. **Combat Result** — Win earns Score (`tier_base + HP bonus`). Defeat ends the run.
 7. **Non-Combat Action** — Pick one free action: Patch Hull (+30 HP), Field Repair (restore a compartment), Rally Crew (morale → 70), or Recon Drone (reveal next enemy layout).
 8. **Shop** — Appears after combats 5, 10, 15… Spend Score on permanent upgrades or single-use consumables.
-9. **New Enemy** — A fresh enemy ship spawns for the next combat. Tiered enemy progression is planned for a later milestone.
+9. **New Enemy** — A fresh enemy ship spawns for the next combat. Enemy tiers now scale by progress: T1 Scout for combats 1-4, T2 Frigate for combats 5-9, and T3 Cruiser from combat 10 onward.
 10. **Win** — Reach Score 120 before your ship is destroyed.
 
 ---
@@ -76,7 +76,7 @@ Each entity has **HP** (hit points). Damage reduces it. When HP reaches 0, the e
 
 Score is earned by winning combats and spent at the shop. It is the win condition (target: 120) and the only currency — both roles exist simultaneously.
 
-- **Win reward:** `tier_base + floor(remaining_hp% × 10)`. Tier bases: T1 = 12, T2 = 18, T3 = 25.
+- **Win reward:** `tier_base + floor(remaining_hp% × 10)`. Tier base now comes from the spawned enemy template: T1 = 12, T2 = 18, T3 = 25.
 - **Flee reward:** 0.
 - **Spending:** shop only. Non-combat actions are free.
 
@@ -135,7 +135,7 @@ If you prefer plain `pip`, install `pygame` manually and run `python main.py`.
 
 ## Current Status
 
-Milestones 1-6 are implemented: score tracking, post-combat flow, non-combat actions, fleeing, the shop shell, and active upgrade/consumable effects. Milestone 7 is next, which adds enemy progression by combat tier.
+Milestones 1-7 are implemented: score tracking, post-combat flow, non-combat actions, fleeing, the shop shell, active upgrade/consumable effects, and tiered enemy progression. Milestone 8 is next, which focuses on menu/polish and full-run feedback.
 
 ---
 

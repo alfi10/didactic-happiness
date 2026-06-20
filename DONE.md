@@ -2,6 +2,15 @@
 
 Completed tasks. Archived for reference only; consult when prior work is specifically relevant to your current task.
 
+## Milestone 7 — Enemy Progression
+
+- [x] `src/enemies.py` added `EnemyTemplate` plus Scout, Frigate, and Cruiser tier definitions
+- [x] `spawn_enemy_for_combat(combat_count)` now picks the next encounter's enemy tier from completed combats
+- [x] `main.py` now spawns enemies through the factory instead of constructing a flat default enemy each time
+- [x] Score rewards now come from `enemy.score_reward` instead of a hardcoded tier ladder in `RunState`
+- [x] Added factory boundary coverage for combat 1, 5, and 10 tier transitions
+- [x] Test suite now at 117 passing tests
+
 ## Milestone 6 — Upgrades and Consumables Effects
 
 - [x] `Ship` / `Player` gained a persistent `destroy_chance_bonus` stat for upgrade-driven combat effects

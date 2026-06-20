@@ -109,5 +109,6 @@ def test_enemy_has_lower_base_accuracy():
     enemy = Enemy(0, 0)
     player = Player(0, 0)
     assert enemy.base_accuracy < player.base_accuracy
-    assert enemy.base_accuracy == 40
+    assert enemy.base_accuracy == 35
+    assert enemy.morale == 40
     assert player.base_accuracy == 70

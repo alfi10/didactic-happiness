@@ -1,10 +1,7 @@
-from dataclasses import dataclass, field
 import math
+from dataclasses import dataclass, field
 
 TARGET_SCORE = 120
-TIER1_BASE = 12   # combats 1-4
-TIER2_BASE = 18   # combats 5-9
-TIER3_BASE = 25   # combats 10+
 
 
 @dataclass
@@ -18,16 +15,9 @@ class RunState:
     scan_next_enemy: bool = False
     last_score_delta: int = 0
 
-    def tier_base(self) -> int:
-        if self.combat_count <= 4:
-            return TIER1_BASE
-        if self.combat_count <= 9:
-            return TIER2_BASE
-        return TIER3_BASE
-
-    def award_combat_score(self, player_hp: int, player_max_hp: int) -> int:
+    def award_combat_score(self, player_hp: int, player_max_hp: int, tier_base: int) -> int:
         hp_bonus = math.floor((player_hp / player_max_hp) * 10) if player_max_hp else 0
-        gained = self.tier_base() + hp_bonus
+        gained = tier_base + hp_bonus
         self.score += gained
         self.last_score_delta = gained
         return gained

@@ -1,6 +1,7 @@
 import pygame
 import sys
 from src.entities import Player, Enemy, CELL_SIZE, SHIP_SIZE
+from src.enemies import spawn_enemy_for_combat
 from src.game_state import GameState, Screen
 from src.combat import CombatSystem
 from src.intel import format_enemy_hp, display_hp_ratio, hp_visible
@@ -130,7 +131,7 @@ small_font = pygame.font.Font(None, 24)
 
 sprites = pygame.sprite.Group()
 player = Player(PLAYER_X, SHIP_Y)
-enemy = Enemy(ENEMY_X, SHIP_Y)
+enemy = spawn_enemy_for_combat(0, ENEMY_X, SHIP_Y)
 sprites.add(player)
 sprites.add(enemy)
 
@@ -333,7 +334,7 @@ def apply_debug_to_ships():
 def start_next_combat():
     global enemy
     sprites.remove(enemy)
-    enemy = Enemy(ENEMY_X, SHIP_Y)
+    enemy = spawn_enemy_for_combat(run_state.combat_count, ENEMY_X, SHIP_Y)
     sprites.add(enemy)
     if game_state.debug_mode or run_state.scan_next_enemy:
         enemy.force_reveal = True
@@ -557,7 +558,7 @@ while running:
     if game_state.screen == Screen.COMBAT:
         if not enemy.alive():
             run_state.combat_count += 1
-            run_state.award_combat_score(player.hp, player.max_hp)
+            run_state.award_combat_score(player.hp, player.max_hp, enemy.score_reward)
             if run_state.is_complete():
                 game_state.screen = Screen.VICTORY
             else:

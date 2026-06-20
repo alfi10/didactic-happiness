@@ -124,12 +124,12 @@ Full design rationale lives in the approved plan at `~/.claude/plans/i-want-to-c
 
 **Goal:** enemies scale by `combat_count`.
 
-- [ ] Create `src/enemies.py` with `EnemyTemplate` dataclass and three templates:
+- [x] Create `src/enemies.py` with `EnemyTemplate` dataclass and three templates:
   - T1 Scout (combats 1–4): HP 60, base_accuracy 35, baseline_morale 40, score_reward 12
   - T2 Frigate (combats 5–9): HP 90, base_accuracy 45, baseline_morale 50, score_reward 18
   - T3 Cruiser (combats 10+): HP 130, base_accuracy 55, baseline_morale 60, score_reward 25
-- [ ] Implement `spawn_enemy_for_combat(combat_count)` factory; replace inline enemy construction
-- [ ] Score reward pulls `tier_base` from template rather than from a hardcoded ladder
+- [x] Implement `spawn_enemy_for_combat(combat_count)` factory; replace inline enemy construction
+- [x] Score reward pulls `tier_base` from template rather than from a hardcoded ladder
 
 **Accepts:** T2 spawns at combat 5 with visibly higher HP/accuracy; T3 at combat 10.
 

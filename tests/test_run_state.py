@@ -1,4 +1,4 @@
-from src.run_state import RunState, TARGET_SCORE, TIER1_BASE, TIER2_BASE, TIER3_BASE
+from src.run_state import RunState, TARGET_SCORE
 
 
 def test_initial_state():
@@ -9,67 +9,36 @@ def test_initial_state():
     assert not rs.is_complete()
 
 
-def test_tier_base_t1_low():
-    rs = RunState(combat_count=1)
-    assert rs.tier_base() == TIER1_BASE
-
-
-def test_tier_base_t1_high():
-    rs = RunState(combat_count=4)
-    assert rs.tier_base() == TIER1_BASE
-
-
-def test_tier_base_t2_low():
-    rs = RunState(combat_count=5)
-    assert rs.tier_base() == TIER2_BASE
-
-
-def test_tier_base_t2_high():
-    rs = RunState(combat_count=9)
-    assert rs.tier_base() == TIER2_BASE
-
-
-def test_tier_base_t3():
-    rs = RunState(combat_count=10)
-    assert rs.tier_base() == TIER3_BASE
-
-
-def test_tier_base_t3_high():
-    rs = RunState(combat_count=15)
-    assert rs.tier_base() == TIER3_BASE
-
-
 def test_award_score_full_hp():
-    rs = RunState(combat_count=1)
-    gained = rs.award_combat_score(100, 100)
-    assert gained == TIER1_BASE + 10
+    rs = RunState()
+    gained = rs.award_combat_score(100, 100, 12)
+    assert gained == 22
     assert rs.score == gained
 
 
 def test_award_score_half_hp():
-    rs = RunState(combat_count=1)
-    gained = rs.award_combat_score(50, 100)
-    assert gained == TIER1_BASE + 5
+    rs = RunState()
+    gained = rs.award_combat_score(50, 100, 12)
+    assert gained == 17
 
 
 def test_award_score_zero_hp():
-    rs = RunState(combat_count=1)
-    gained = rs.award_combat_score(0, 100)
-    assert gained == TIER1_BASE + 0
+    rs = RunState()
+    gained = rs.award_combat_score(0, 100, 12)
+    assert gained == 12
 
 
 def test_award_score_accumulates():
-    rs = RunState(combat_count=1)
-    rs.award_combat_score(100, 100)
-    rs.combat_count = 2
-    rs.award_combat_score(100, 100)
-    assert rs.score == (TIER1_BASE + 10) * 2
+    rs = RunState()
+    rs.award_combat_score(100, 100, 12)
+    rs.award_combat_score(100, 100, 18)
+    assert rs.score == 50
 
 
 def test_award_score_zero_max_hp():
-    rs = RunState(combat_count=1)
-    gained = rs.award_combat_score(0, 0)
-    assert gained == TIER1_BASE
+    rs = RunState()
+    gained = rs.award_combat_score(0, 0, 12)
+    assert gained == 12
 
 
 def test_is_complete_false():
@@ -93,9 +62,9 @@ def test_last_score_delta_default_zero():
 
 
 def test_award_score_sets_last_delta():
-    rs = RunState(combat_count=1)
-    rs.award_combat_score(100, 100)
-    assert rs.last_score_delta == TIER1_BASE + 10
+    rs = RunState()
+    rs.award_combat_score(100, 100, 12)
+    assert rs.last_score_delta == 22
 
 
 def test_register_flee_increments_combat_count():
