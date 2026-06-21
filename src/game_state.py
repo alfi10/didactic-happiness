@@ -11,6 +11,7 @@ class TurnState(Enum):
 
 
 class Screen(Enum):
+    TITLE = "title"
     COMBAT = "combat"
     COMBAT_RESULT = "combat_result"
     NON_COMBAT_ACTION = "non_combat_action"
@@ -29,7 +30,7 @@ class GameState:
         self.enemy_target = None
         self.enemy_turn_start = 0
         self.debug_mode = False
-        self.screen = Screen.COMBAT
+        self.screen = Screen.TITLE
         self.last_combat_result = "win"  # "win" | "flee" (flee added in M4)
 
     def next_turn(self):

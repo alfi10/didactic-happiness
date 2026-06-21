@@ -25,6 +25,9 @@ FIRE_BUTTON_HEIGHT = 44
 FIRE_BUTTON_CENTER_Y = WINDOW_HEIGHT - 70
 RESULT_BUTTON_WIDTH = 160
 RESULT_BUTTON_HEIGHT = 44
+TITLE_BUTTON_WIDTH = 220
+TITLE_BUTTON_HEIGHT = 48
+TITLE_BUTTON_GAP = 16
 DEBUG_KILL_BUTTON_WIDTH = 120
 FLEE_BUTTON_WIDTH = 120
 ACTION_BUTTON_WIDTH = 260
@@ -58,6 +61,18 @@ def quit_button_rect():
     return pygame.Rect(WINDOW_WIDTH // 2 - RESULT_BUTTON_WIDTH // 2,
                        WINDOW_HEIGHT // 2 + 90,
                        RESULT_BUTTON_WIDTH, RESULT_BUTTON_HEIGHT)
+
+def title_button_rects():
+    start_y = WINDOW_HEIGHT // 2 - 30
+    return [
+        pygame.Rect(
+            WINDOW_WIDTH // 2 - TITLE_BUTTON_WIDTH // 2,
+            start_y + i * (TITLE_BUTTON_HEIGHT + TITLE_BUTTON_GAP),
+            TITLE_BUTTON_WIDTH,
+            TITLE_BUTTON_HEIGHT,
+        )
+        for i in range(3)
+    ]
 
 def flee_button_rect():
     return pygame.Rect(
@@ -139,6 +154,7 @@ game_state = GameState()
 combat = CombatSystem()
 run_state = RunState()
 debug_auto_kill = False
+options_message_visible = False
 
 def get_compartment_at(ship, mouse_x, mouse_y):
     if not ship.rect.collidepoint(mouse_x, mouse_y):
@@ -331,6 +347,22 @@ def apply_debug_to_ships():
     enemy.refresh()
 
 
+def start_new_run():
+    global player, enemy, game_state, run_state, debug_auto_kill, options_message_visible
+    debug_mode = game_state.debug_mode
+    sprites.empty()
+    player = Player(PLAYER_X, SHIP_Y)
+    enemy = spawn_enemy_for_combat(0, ENEMY_X, SHIP_Y)
+    sprites.add(player, enemy)
+    run_state = RunState()
+    game_state = GameState()
+    game_state.debug_mode = debug_mode
+    game_state.reset_for_combat()
+    debug_auto_kill = False
+    options_message_visible = False
+    apply_debug_to_ships()
+
+
 def start_next_combat():
     global enemy
     sprites.remove(enemy)
@@ -429,6 +461,35 @@ def render_shop():
     draw_button(screen, leave_shop_button_rect(), "Leave Shop")
 
 
+def render_title():
+    screen.fill((12, 18, 36))
+    pygame.draw.circle(screen, (35, 72, 112), (120, 90), 170)
+    pygame.draw.circle(screen, (24, 48, 82), (720, 520), 230)
+
+    title = font.render("DIDACTIC HAPPINESS", True, (235, 225, 175))
+    screen.blit(title, (WINDOW_WIDTH // 2 - title.get_width() // 2, 105))
+    subtitle = small_font.render(
+        "Tactical space combat", True, (145, 180, 205)
+    )
+    screen.blit(
+        subtitle,
+        (WINDOW_WIDTH // 2 - subtitle.get_width() // 2, 150),
+    )
+
+    labels = ("Start Game", "Options", "Quit")
+    for label, rect in zip(labels, title_button_rects()):
+        draw_button(screen, rect, label)
+
+    if options_message_visible:
+        message = small_font.render(
+            "Options are not available yet.", True, (220, 190, 110)
+        )
+        screen.blit(
+            message,
+            (WINDOW_WIDTH // 2 - message.get_width() // 2, WINDOW_HEIGHT - 65),
+        )
+
+
 def render_combat_result():
     screen.fill((20, 20, 40))
     if game_state.last_combat_result == "flee":
@@ -466,7 +527,7 @@ def render_game_over():
     screen.blit(score_text, (WINDOW_WIDTH // 2 - score_text.get_width() // 2, WINDOW_HEIGHT // 2 - 50))
     combats = small_font.render(f"Combats survived: {run_state.combat_count}", True, (160, 160, 160))
     screen.blit(combats, (WINDOW_WIDTH // 2 - combats.get_width() // 2, WINDOW_HEIGHT // 2 + 10))
-    draw_button(screen, quit_button_rect(), "Quit")
+    draw_button(screen, quit_button_rect(), "Back to Menu")
 
 
 def render_victory():
@@ -477,7 +538,7 @@ def render_victory():
     screen.blit(score_text, (WINDOW_WIDTH // 2 - score_text.get_width() // 2, WINDOW_HEIGHT // 2 - 50))
     combats = small_font.render(f"Combats: {run_state.combat_count}", True, (160, 160, 160))
     screen.blit(combats, (WINDOW_WIDTH // 2 - combats.get_width() // 2, WINDOW_HEIGHT // 2 + 10))
-    draw_button(screen, quit_button_rect(), "Quit")
+    draw_button(screen, quit_button_rect(), "Back to Menu")
 
 
 hovered_compartment = None
@@ -508,17 +569,25 @@ while running:
                   and game_state.screen == Screen.COMBAT):
                 debug_auto_kill = not debug_auto_kill
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if game_state.screen == Screen.COMBAT and game_state.is_player_turn():
-                if handle_combat_consumable_click(mouse_x, mouse_y):
-                    pass
-                elif flee_button_rect().collidepoint(mouse_x, mouse_y) and game_state.turn_count >= 2:
-                    perform_flee()
-                elif fire_button_rect().collidepoint(mouse_x, mouse_y) and game_state.selected_compartment:
-                    perform_fire()
-                elif hovered_compartment:
-                    game_state.select(hovered_compartment)
-            if game_state.screen == Screen.COMBAT and game_state.debug_mode:
-                if debug_kill_button_rect().collidepoint(mouse_x, mouse_y):
+            if game_state.screen == Screen.TITLE:
+                start_rect, options_rect, quit_rect = title_button_rects()
+                if start_rect.collidepoint(mouse_x, mouse_y):
+                    start_new_run()
+                elif options_rect.collidepoint(mouse_x, mouse_y):
+                    options_message_visible = True
+                elif quit_rect.collidepoint(mouse_x, mouse_y):
+                    running = False
+            elif game_state.screen == Screen.COMBAT:
+                if game_state.is_player_turn():
+                    if handle_combat_consumable_click(mouse_x, mouse_y):
+                        pass
+                    elif flee_button_rect().collidepoint(mouse_x, mouse_y) and game_state.turn_count >= 2:
+                        perform_flee()
+                    elif fire_button_rect().collidepoint(mouse_x, mouse_y) and game_state.selected_compartment:
+                        perform_fire()
+                    elif hovered_compartment:
+                        game_state.select(hovered_compartment)
+                if game_state.debug_mode and debug_kill_button_rect().collidepoint(mouse_x, mouse_y):
                     debug_auto_kill = not debug_auto_kill
             elif game_state.screen == Screen.COMBAT_RESULT:
                 if continue_button_rect().collidepoint(mouse_x, mouse_y):
@@ -541,7 +610,8 @@ while running:
                     start_next_combat()
             elif game_state.screen in (Screen.GAME_OVER, Screen.VICTORY):
                 if quit_button_rect().collidepoint(mouse_x, mouse_y):
-                    running = False
+                    game_state.screen = Screen.TITLE
+                    options_message_visible = False
 
     if game_state.screen == Screen.COMBAT and game_state.is_enemy_turn() and game_state.enemy_target is not None:
         if game_state.debug_mode or game_state.enemy_ready_to_fire(current_time):
@@ -569,7 +639,10 @@ while running:
 
     sprites.update()
 
-    if game_state.screen == Screen.COMBAT:
+    if game_state.screen == Screen.TITLE:
+        render_title()
+
+    elif game_state.screen == Screen.COMBAT:
         screen.fill((20, 20, 40))
         sprites.draw(screen)
 

@@ -80,9 +80,9 @@ def test_toggle_debug_flips_flag():
     assert state.debug_mode is False
 
 
-def test_screen_starts_as_combat():
+def test_screen_starts_as_title():
     state = GameState()
-    assert state.screen == Screen.COMBAT
+    assert state.screen == Screen.TITLE
 
 
 def test_last_combat_result_default():
@@ -117,3 +117,7 @@ def test_screen_enum_has_non_combat_action():
 
 def test_screen_enum_has_shop():
     assert Screen.SHOP is not None
+
+
+def test_screen_enum_has_title():
+    assert Screen.TITLE is not None

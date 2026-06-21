@@ -2,6 +2,15 @@
 
 Completed tasks. Archived for reference only; consult when prior work is specifically relevant to your current task.
 
+## Title Screen and Run Reset
+
+- [x] The game now opens on a title screen instead of starting combat immediately
+- [x] The title screen provides `Start Game`, `Options`, and `Quit` actions
+- [x] `Options` reports that configuration is not available yet
+- [x] `Start Game` creates a clean player, enemy, run state, and combat state
+- [x] `GAME_OVER` and `VICTORY` now return to the title screen
+- [x] Added title-screen state coverage; suite now at 118 passing tests
+
 ## Milestone 7 — Enemy Progression
 
 - [x] `src/enemies.py` added `EnemyTemplate` plus Scout, Frigate, and Cruiser tier definitions
