@@ -1,4 +1,11 @@
-from src.game_state import GameState, TurnState, Screen, ENEMY_ACQUIRE_MS, ENEMY_FIRE_MS
+from src.game_state import (
+    COMBAT_RESOLUTION_MS,
+    ENEMY_ACQUIRE_MS,
+    ENEMY_FIRE_MS,
+    GameState,
+    Screen,
+    TurnState,
+)
 
 
 def test_initial_turn_is_player():
@@ -109,6 +116,35 @@ def test_reset_for_combat_preserves_debug():
     state.toggle_debug()
     state.reset_for_combat()
     assert state.debug_mode is True
+
+
+def test_combat_resolution_stays_in_combat_before_threshold():
+    state = GameState()
+    state.reset_for_combat()
+    state.start_combat_resolution(Screen.COMBAT_RESULT, current_time=100)
+    state.complete_combat_resolution(100 + COMBAT_RESOLUTION_MS - 1)
+    assert state.screen == Screen.COMBAT
+
+
+def test_combat_resolution_completes_at_threshold():
+    state = GameState()
+    state.reset_for_combat()
+    state.start_combat_resolution(Screen.GAME_OVER, current_time=100)
+    state.complete_combat_resolution(100 + COMBAT_RESOLUTION_MS)
+    assert state.screen == Screen.GAME_OVER
+
+
+def test_combat_resolution_progress_is_clamped():
+    state = GameState()
+    state.start_combat_resolution(Screen.VICTORY, current_time=100)
+    assert state.combat_resolution_progress(100 + COMBAT_RESOLUTION_MS * 2) == 1.0
+
+
+def test_reset_for_combat_clears_pending_resolution():
+    state = GameState()
+    state.start_combat_resolution(Screen.VICTORY, current_time=100)
+    state.reset_for_combat()
+    assert state.combat_resolution_active() is False
 
 
 def test_screen_enum_has_non_combat_action():

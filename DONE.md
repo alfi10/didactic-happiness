@@ -2,6 +2,13 @@
 
 Completed tasks. Archived for reference only; consult when prior work is specifically relevant to your current task.
 
+## Combat completion animation
+
+- [x] Combat remains visible for a timed 1.2-second resolution phase after either ship is destroyed
+- [x] Combat input and enemy turns are frozen while the resolution is active
+- [x] A temporary pulsing victory or defeat overlay appears before the final result screen
+- [x] The pending destination is stored in `GameState`, preventing repeated score awards
+
 ## Target Selection Visibility
 
 - [x] Hidden enemy compartments now use `Targeting: Unknown compartment`

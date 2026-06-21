@@ -1,5 +1,8 @@
-import pygame
+import math
 import sys
+
+import pygame
+
 from src.entities import Player, Enemy, CELL_SIZE, SHIP_SIZE
 from src.enemies import spawn_enemy_for_combat
 from src.game_state import GameState, Screen
@@ -293,7 +296,13 @@ def draw_flee_button(surface, game_state):
     )
 
 def perform_flee():
-    if not (game_state.is_player_turn() and game_state.turn_count >= 2):
+    if not (
+        game_state.is_player_turn()
+        and game_state.turn_count >= 2
+        and player.alive()
+        and enemy.alive()
+        and not game_state.combat_resolution_active()
+    ):
         return
     run_state.register_flee()
     game_state.last_combat_result = "flee"
@@ -302,7 +311,13 @@ def perform_flee():
     game_state.screen = Screen.COMBAT_RESULT
 
 def perform_fire():
-    if not (game_state.is_player_turn() and game_state.selected_compartment):
+    if not (
+        game_state.is_player_turn()
+        and game_state.selected_compartment
+        and player.alive()
+        and enemy.alive()
+        and not game_state.combat_resolution_active()
+    ):
         return
     if debug_auto_kill and game_state.debug_mode:
         debug_auto_hit()
@@ -317,7 +332,13 @@ def perform_fire():
 
 
 def debug_auto_hit():
-    if not (game_state.is_player_turn() and game_state.debug_mode):
+    if not (
+        game_state.is_player_turn()
+        and game_state.debug_mode
+        and player.alive()
+        and enemy.alive()
+        and not game_state.combat_resolution_active()
+    ):
         return
     target = game_state.selected_compartment
     if target is None or target not in enemy.compartments:
@@ -401,7 +422,13 @@ def buy_item(item):
 
 
 def use_combat_consumable(item_name):
-    if not (game_state.screen == Screen.COMBAT and game_state.is_player_turn()):
+    if not (
+        game_state.screen == Screen.COMBAT
+        and game_state.is_player_turn()
+        and player.alive()
+        and enemy.alive()
+        and not game_state.combat_resolution_active()
+    ):
         return False
     if item_name == "Repair Kit":
         return use_repair_kit(run_state, player)
@@ -541,6 +568,34 @@ def render_victory():
     draw_button(screen, quit_button_rect(), "Back to Menu")
 
 
+def draw_combat_resolution(surface, game_state, current_time):
+    progress = game_state.combat_resolution_progress(current_time)
+    destination = game_state.pending_combat_screen
+    victory = destination in (Screen.COMBAT_RESULT, Screen.VICTORY)
+    label = "VICTORY" if victory else "DEFEAT"
+    color = (100, 255, 100) if victory else (255, 80, 80)
+
+    overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.SRCALPHA)
+    overlay.fill((8, 10, 24, int(180 * progress)))
+    surface.blit(overlay, (0, 0))
+
+    # Temporary placeholder until final combat-resolution artwork is available.
+    label_surface = font.render(label, True, color)
+    scale = 1.0 + 0.12 * math.sin(progress * math.pi * 4)
+    scaled_size = (
+        max(1, int(label_surface.get_width() * scale)),
+        max(1, int(label_surface.get_height() * scale)),
+    )
+    label_surface = pygame.transform.smoothscale(label_surface, scaled_size)
+    surface.blit(
+        label_surface,
+        (
+            WINDOW_WIDTH // 2 - label_surface.get_width() // 2,
+            WINDOW_HEIGHT // 2 - label_surface.get_height() // 2,
+        ),
+    )
+
+
 hovered_compartment = None
 current_time = 0
 
@@ -550,7 +605,11 @@ while running:
     mouse_x, mouse_y = pygame.mouse.get_pos()
 
     hovered_compartment = None
-    if game_state.screen == Screen.COMBAT and game_state.is_player_turn():
+    if (
+        game_state.screen == Screen.COMBAT
+        and game_state.is_player_turn()
+        and not game_state.combat_resolution_active()
+    ):
         hovered_compartment = get_compartment_at(enemy, mouse_x, mouse_y)
 
     for event in pygame.event.get():
@@ -562,11 +621,17 @@ while running:
                 apply_debug_to_ships()
                 if not game_state.debug_mode:
                     debug_auto_kill = False
-            elif event.key == pygame.K_SPACE and game_state.screen == Screen.COMBAT and game_state.is_player_turn():
+            elif (
+                event.key == pygame.K_SPACE
+                and game_state.screen == Screen.COMBAT
+                and game_state.is_player_turn()
+                and not game_state.combat_resolution_active()
+            ):
                 perform_fire()
             elif (event.key == pygame.K_d
                   and game_state.debug_mode
-                  and game_state.screen == Screen.COMBAT):
+                  and game_state.screen == Screen.COMBAT
+                  and not game_state.combat_resolution_active()):
                 debug_auto_kill = not debug_auto_kill
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if game_state.screen == Screen.TITLE:
@@ -578,7 +643,7 @@ while running:
                 elif quit_rect.collidepoint(mouse_x, mouse_y):
                     running = False
             elif game_state.screen == Screen.COMBAT:
-                if game_state.is_player_turn():
+                if game_state.is_player_turn() and not game_state.combat_resolution_active():
                     if handle_combat_consumable_click(mouse_x, mouse_y):
                         pass
                     elif flee_button_rect().collidepoint(mouse_x, mouse_y) and game_state.turn_count >= 2:
@@ -587,7 +652,11 @@ while running:
                         perform_fire()
                     elif hovered_compartment:
                         game_state.select(hovered_compartment)
-                if game_state.debug_mode and debug_kill_button_rect().collidepoint(mouse_x, mouse_y):
+                if (
+                    game_state.debug_mode
+                    and not game_state.combat_resolution_active()
+                    and debug_kill_button_rect().collidepoint(mouse_x, mouse_y)
+                ):
                     debug_auto_kill = not debug_auto_kill
             elif game_state.screen == Screen.COMBAT_RESULT:
                 if continue_button_rect().collidepoint(mouse_x, mouse_y):
@@ -613,7 +682,14 @@ while running:
                     game_state.screen = Screen.TITLE
                     options_message_visible = False
 
-    if game_state.screen == Screen.COMBAT and game_state.is_enemy_turn() and game_state.enemy_target is not None:
+    if (
+        game_state.screen == Screen.COMBAT
+        and not game_state.combat_resolution_active()
+        and player.alive()
+        and enemy.alive()
+        and game_state.is_enemy_turn()
+        and game_state.enemy_target is not None
+    ):
         if game_state.debug_mode or game_state.enemy_ready_to_fire(current_time):
             target = game_state.enemy_target
             hit, _ = combat.fire(target, player, enemy)
@@ -626,16 +702,19 @@ while running:
             enemy.drift_morale()
 
     if game_state.screen == Screen.COMBAT:
-        if not enemy.alive():
+        if game_state.combat_resolution_active():
+            game_state.complete_combat_resolution(current_time)
+        elif not enemy.alive():
             run_state.combat_count += 1
             run_state.award_combat_score(player.hp, player.max_hp, enemy.score_reward)
+            game_state.last_combat_result = "win"
             if run_state.is_complete():
-                game_state.screen = Screen.VICTORY
+                destination = Screen.VICTORY
             else:
-                game_state.last_combat_result = "win"
-                game_state.screen = Screen.COMBAT_RESULT
+                destination = Screen.COMBAT_RESULT
+            game_state.start_combat_resolution(destination, current_time)
         elif not player.alive():
-            game_state.screen = Screen.GAME_OVER
+            game_state.start_combat_resolution(Screen.GAME_OVER, current_time)
 
     sprites.update()
 
@@ -664,11 +743,17 @@ while running:
             flash_surf.fill((255, 255, 255))
             screen.blit(flash_surf, hit_rect.topleft)
 
-        if hovered_compartment and game_state.is_player_turn():
+        resolving_combat = game_state.combat_resolution_active()
+
+        if hovered_compartment and game_state.is_player_turn() and not resolving_combat:
             hover_rect = compartment_screen_rect(enemy, hovered_compartment)
             pygame.draw.rect(screen, (255, 255, 255), hover_rect, 2)
 
-        if game_state.selected_compartment and game_state.is_player_turn():
+        if (
+            game_state.selected_compartment
+            and game_state.is_player_turn()
+            and not resolving_combat
+        ):
             select_rect = compartment_screen_rect(enemy, game_state.selected_compartment)
             pygame.draw.rect(screen, (255, 255, 0), select_rect, 2)
             target_name = (
@@ -683,16 +768,18 @@ while running:
 
         if (
             game_state.is_enemy_turn()
+            and not resolving_combat
             and game_state.enemy_target is not None
             and game_state.enemy_target_acquired(current_time)
         ):
             enemy_target_rect = compartment_screen_rect(player, game_state.enemy_target)
             pygame.draw.rect(screen, (220, 60, 60), enemy_target_rect, 2)
 
-        draw_fire_button(screen, game_state)
-        draw_flee_button(screen, game_state)
-        draw_combat_consumables(screen, game_state)
-        if game_state.debug_mode:
+        if not resolving_combat:
+            draw_fire_button(screen, game_state)
+            draw_flee_button(screen, game_state)
+            draw_combat_consumables(screen, game_state)
+        if game_state.debug_mode and not resolving_combat:
             label = "Auto-Kill: ON" if debug_auto_kill else "Auto-Kill (D)"
             bg = (180, 140, 0) if debug_auto_kill else (50, 100, 180)
             border = (220, 180, 0) if debug_auto_kill else (80, 140, 220)
@@ -704,9 +791,12 @@ while running:
                                    rect.centery - lbl_surf.get_height() // 2))
         draw_debug_hud(screen, player, enemy, game_state, run_state)
 
-        turn_text = "Your Turn" if game_state.is_player_turn() else "Enemy Turn"
-        turn_surface = font.render(turn_text, True, (200, 200, 200))
-        screen.blit(turn_surface, (WINDOW_WIDTH // 2 - turn_surface.get_width() // 2, 20))
+        if resolving_combat:
+            draw_combat_resolution(screen, game_state, current_time)
+        else:
+            turn_text = "Your Turn" if game_state.is_player_turn() else "Enemy Turn"
+            turn_surface = font.render(turn_text, True, (200, 200, 200))
+            screen.blit(turn_surface, (WINDOW_WIDTH // 2 - turn_surface.get_width() // 2, 20))
 
     elif game_state.screen == Screen.COMBAT_RESULT:
         render_combat_result()
