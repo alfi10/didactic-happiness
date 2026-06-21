@@ -2,6 +2,14 @@
 
 Completed tasks. Archived for reference only; consult when prior work is specifically relevant to your current task.
 
+## Post-Combat Actions
+
+- [x] The action screen shows current hull, morale, and destroyed compartments
+- [x] `Field Repair` and `Rally Crew` are disabled when they cannot change ship state
+- [x] `Field Repair` opens a dedicated selection screen for destroyed compartments
+- [x] The selected compartment is validated and restored to half HP
+- [x] The repair selection can be cancelled without consuming the post-combat action
+
 ## Combat completion animation
 
 - [x] Combat remains visible for a timed 1.2-second resolution phase after either ship is destroyed

@@ -36,6 +36,10 @@ FLEE_BUTTON_WIDTH = 120
 ACTION_BUTTON_WIDTH = 260
 ACTION_BUTTON_HEIGHT = 44
 ACTION_SLOT_HEIGHT = 82
+ACTION_START_Y = 200
+REPAIR_BUTTON_WIDTH = 210
+REPAIR_BUTTON_HEIGHT = 48
+REPAIR_BUTTON_GAP = 16
 SHOP_ROW_H = 68
 SHOP_ROW_GAP = 6
 SHOP_ROW_W = 680
@@ -94,15 +98,36 @@ def debug_kill_button_rect():
     )
 
 def action_button_rects():
-    total_h = len(NON_COMBAT_ACTIONS) * ACTION_SLOT_HEIGHT
-    start_y = WINDOW_HEIGHT // 2 - total_h // 2
     cx = WINDOW_WIDTH // 2
     return [
         pygame.Rect(cx - ACTION_BUTTON_WIDTH // 2,
-                    start_y + i * ACTION_SLOT_HEIGHT,
+                    ACTION_START_Y + i * ACTION_SLOT_HEIGHT,
                     ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT)
         for i in range(len(NON_COMBAT_ACTIONS))
     ]
+
+def field_repair_button_rects(compartments):
+    columns = 3
+    total_width = columns * REPAIR_BUTTON_WIDTH + (columns - 1) * REPAIR_BUTTON_GAP
+    start_x = WINDOW_WIDTH // 2 - total_width // 2
+    start_y = 150
+    return [
+        pygame.Rect(
+            start_x + (i % columns) * (REPAIR_BUTTON_WIDTH + REPAIR_BUTTON_GAP),
+            start_y + (i // columns) * (REPAIR_BUTTON_HEIGHT + REPAIR_BUTTON_GAP),
+            REPAIR_BUTTON_WIDTH,
+            REPAIR_BUTTON_HEIGHT,
+        )
+        for i in range(len(compartments))
+    ]
+
+def field_repair_back_rect():
+    return pygame.Rect(
+        WINDOW_WIDTH // 2 - RESULT_BUTTON_WIDTH // 2,
+        WINDOW_HEIGHT - 70,
+        RESULT_BUTTON_WIDTH,
+        RESULT_BUTTON_HEIGHT,
+    )
 
 def shop_row_rects():
     start_y = 75
@@ -232,10 +257,13 @@ def draw_morale_bar(surface, ship):
     pygame.draw.rect(surface, (60, 60, 60), (x, y, bar_width, bar_height))
     pygame.draw.rect(surface, (80, 180, 220), (x, y, int(bar_width * ratio), bar_height))
 
-def draw_button(surface, rect, label):
-    pygame.draw.rect(surface, (50, 100, 180), rect)
-    pygame.draw.rect(surface, (80, 140, 220), rect, 2)
-    text = small_font.render(label, True, (255, 255, 255))
+def draw_button(surface, rect, label, enabled=True):
+    background = (50, 100, 180) if enabled else (45, 45, 55)
+    border = (80, 140, 220) if enabled else (70, 70, 85)
+    text_color = (255, 255, 255) if enabled else (120, 120, 130)
+    pygame.draw.rect(surface, background, rect)
+    pygame.draw.rect(surface, border, rect, 2)
+    text = small_font.render(label, True, text_color)
     surface.blit(text, (rect.centerx - text.get_width() // 2,
                         rect.centery - text.get_height() // 2))
 
@@ -400,6 +428,17 @@ def start_next_combat():
         player.change_morale(-penalty)
 
 
+def complete_non_combat_action():
+    if run_state.combat_count % 5 == 0:
+        game_state.screen = Screen.SHOP
+    else:
+        start_next_combat()
+
+
+def destroyed_player_compartments():
+    return [compartment for compartment in player.compartments if not compartment.active]
+
+
 def get_item_stacks(item):
     if item.kind == "upgrade":
         return run_state.owned_upgrades.get(item.name, 0)
@@ -539,11 +578,59 @@ def render_combat_result():
 def render_non_combat_action():
     screen.fill((20, 20, 40))
     header = font.render("Choose an Action", True, (200, 200, 255))
-    screen.blit(header, (WINDOW_WIDTH // 2 - header.get_width() // 2, 40))
+    screen.blit(header, (WINDOW_WIDTH // 2 - header.get_width() // 2, 25))
+
+    hull = small_font.render(
+        f"Hull: {player.hp} / {player.max_hp}", True, (200, 200, 200)
+    )
+    morale = small_font.render(
+        f"Morale: {player.morale} / 100", True, (200, 200, 200)
+    )
+    destroyed = destroyed_player_compartments()
+    screen.blit(hull, (WINDOW_WIDTH // 2 - hull.get_width() // 2, 70))
+    screen.blit(morale, (WINDOW_WIDTH // 2 - morale.get_width() // 2, 94))
+
+    destroyed_names = [compartment.name for compartment in destroyed]
+    destroyed_rows = [
+        ", ".join(destroyed_names[index:index + 3])
+        for index in range(0, len(destroyed_names), 3)
+    ] or ["None"]
+    for row_index, names in enumerate(destroyed_rows):
+        prefix = "Destroyed: " if row_index == 0 else ""
+        destroyed_text = small_font.render(
+            f"{prefix}{names}", True, (180, 160, 160)
+        )
+        screen.blit(
+            destroyed_text,
+            (
+                WINDOW_WIDTH // 2 - destroyed_text.get_width() // 2,
+                122 + row_index * 20,
+            ),
+        )
+
     for action, rect in zip(NON_COMBAT_ACTIONS, action_button_rects()):
-        draw_button(screen, rect, action.name)
-        desc = small_font.render(action.description, True, (140, 140, 160))
+        available = action.is_available(run_state, player)
+        draw_button(screen, rect, action.name, enabled=available)
+        description_color = (140, 140, 160) if available else (90, 90, 105)
+        desc = small_font.render(action.description, True, description_color)
         screen.blit(desc, (WINDOW_WIDTH // 2 - desc.get_width() // 2, rect.bottom + 4))
+
+
+def render_field_repair():
+    screen.fill((20, 20, 40))
+    header = font.render("Field Repair", True, (200, 200, 255))
+    screen.blit(header, (WINDOW_WIDTH // 2 - header.get_width() // 2, 40))
+    prompt = small_font.render(
+        "Choose a destroyed compartment to restore to half HP",
+        True,
+        (160, 160, 190),
+    )
+    screen.blit(prompt, (WINDOW_WIDTH // 2 - prompt.get_width() // 2, 90))
+
+    destroyed = destroyed_player_compartments()
+    for compartment, rect in zip(destroyed, field_repair_button_rects(destroyed)):
+        draw_button(screen, rect, compartment.name)
+    draw_button(screen, field_repair_back_rect(), "Back")
 
 
 def render_game_over():
@@ -663,13 +750,32 @@ while running:
                     game_state.screen = Screen.NON_COMBAT_ACTION
             elif game_state.screen == Screen.NON_COMBAT_ACTION:
                 for action, rect in zip(NON_COMBAT_ACTIONS, action_button_rects()):
-                    if rect.collidepoint(mouse_x, mouse_y):
-                        action.apply(run_state, player)
-                        if run_state.combat_count % 5 == 0:
-                            game_state.screen = Screen.SHOP
+                    if (
+                        rect.collidepoint(mouse_x, mouse_y)
+                        and action.is_available(run_state, player)
+                    ):
+                        if action.key == "field_repair":
+                            game_state.screen = Screen.FIELD_REPAIR
                         else:
-                            start_next_combat()
+                            action.apply(run_state, player)
+                            complete_non_combat_action()
                         break
+            elif game_state.screen == Screen.FIELD_REPAIR:
+                destroyed = destroyed_player_compartments()
+                for compartment, rect in zip(
+                    destroyed, field_repair_button_rects(destroyed)
+                ):
+                    if rect.collidepoint(mouse_x, mouse_y):
+                        field_repair = next(
+                            action
+                            for action in NON_COMBAT_ACTIONS
+                            if action.key == "field_repair"
+                        )
+                        if field_repair.apply(run_state, player, compartment):
+                            complete_non_combat_action()
+                        break
+                if field_repair_back_rect().collidepoint(mouse_x, mouse_y):
+                    game_state.screen = Screen.NON_COMBAT_ACTION
             elif game_state.screen == Screen.SHOP:
                 for item, (card, buy) in zip(SHOP_ITEMS, shop_row_rects()):
                     if buy.collidepoint(mouse_x, mouse_y):
@@ -803,6 +909,9 @@ while running:
 
     elif game_state.screen == Screen.NON_COMBAT_ACTION:
         render_non_combat_action()
+
+    elif game_state.screen == Screen.FIELD_REPAIR:
+        render_field_repair()
 
     elif game_state.screen == Screen.SHOP:
         render_shop()

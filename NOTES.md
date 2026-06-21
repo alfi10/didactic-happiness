@@ -9,8 +9,6 @@ Use this file to capture what you observe while playing, reviewing, or testing. 
 
 ## Detectado
 
-- [ ] Acciones post combate:
-  Falta dos puntos: verificar la vida actual de la nave, los compartimentos destruidos de la nave y el nivel de moral de la nave. Elegir el compartimento destruido que se recupera. Además, si no hay compartimentos destruidos, la acción de reparación de campo se desactiva, y si la moral está por encima del 70%, la acción de Rally Crew se desactiva.
 ## Estudiado
 
 - [ ] Example: combat result layout needs more vertical space

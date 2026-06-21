@@ -16,6 +16,7 @@ class Screen(Enum):
     COMBAT = "combat"
     COMBAT_RESULT = "combat_result"
     NON_COMBAT_ACTION = "non_combat_action"
+    FIELD_REPAIR = "field_repair"
     SHOP = "shop"
     GAME_OVER = "game_over"
     VICTORY = "victory"

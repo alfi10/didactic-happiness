@@ -32,15 +32,45 @@ def test_field_repair_restores_compartment():
     comp = p.compartments[0]
     comp.hp = 0
     comp.active = False
-    FIELD_REPAIR.apply(RunState(), p)
+    FIELD_REPAIR.apply(RunState(), p, comp)
     assert comp.active is True
     assert comp.hp == comp.max_hp // 2
 
 
-def test_field_repair_noop_when_all_active():
+def test_field_repair_only_restores_selected_compartment():
     p = Player(0, 0)
-    FIELD_REPAIR.apply(RunState(), p)
-    assert all(c.active for c in p.compartments)
+    first, second = p.compartments[:2]
+    first.active = False
+    first.hp = 0
+    second.active = False
+    second.hp = 0
+    FIELD_REPAIR.apply(RunState(), p, second)
+    assert first.active is False
+
+
+def test_field_repair_rejects_active_compartment():
+    p = Player(0, 0)
+    comp = p.compartments[0]
+    assert FIELD_REPAIR.apply(RunState(), p, comp) is False
+
+
+def test_field_repair_rejects_compartment_from_another_player():
+    p = Player(0, 0)
+    foreign = Player(0, 0).compartments[0]
+    foreign.active = False
+    foreign.hp = 0
+    assert FIELD_REPAIR.apply(RunState(), p, foreign) is False
+
+
+def test_field_repair_available_with_destroyed_compartment():
+    p = Player(0, 0)
+    p.compartments[0].active = False
+    assert FIELD_REPAIR.is_available(RunState(), p) is True
+
+
+def test_field_repair_unavailable_when_all_compartments_active():
+    p = Player(0, 0)
+    assert FIELD_REPAIR.is_available(RunState(), p) is False
 
 
 def test_rally_crew_sets_morale():
@@ -55,6 +85,24 @@ def test_rally_crew_noop_when_already_high():
     p.morale = 80
     RALLY_CREW.apply(RunState(), p)
     assert p.morale == 80
+
+
+def test_rally_crew_available_below_70():
+    p = Player(0, 0)
+    p.morale = 69
+    assert RALLY_CREW.is_available(RunState(), p) is True
+
+
+def test_rally_crew_unavailable_at_70():
+    p = Player(0, 0)
+    p.morale = 70
+    assert RALLY_CREW.is_available(RunState(), p) is False
+
+
+def test_rally_crew_unavailable_above_70():
+    p = Player(0, 0)
+    p.morale = 71
+    assert RALLY_CREW.is_available(RunState(), p) is False
 
 
 def test_recon_drone_sets_flag():
