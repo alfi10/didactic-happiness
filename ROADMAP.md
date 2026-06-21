@@ -135,17 +135,17 @@ Full design rationale lives in the approved plan at `~/.claude/plans/i-want-to-c
 
 ---
 
-## Milestone 8 — Polish & Feedback
+## Milestone 8 — Notes & Triage
 
-**Goal:** make the loop feel finished.
+**Goal:** turn playtest findings into a lightweight notes-and-triage loop before the final polish work.
 
-- [ ] `MAIN_MENU` screen with "Start Run" / "Quit"; boot into it instead of straight to combat
-- [ ] Victory / Game Over screens show full stats (combat_count, final Score, upgrades owned)
-- [ ] Sound effects (optional, low priority)
-- [ ] Balance pass: play 3 full runs end-to-end; tune tier rewards, shop prices, or target Score if pacing is off
-- [ ] Update [DONE.md](DONE.md) as each milestone lands
+- [ ] Create and maintain [NOTES.md](NOTES.md) with `Detectado` and `Estudiado` sections
+- [ ] Capture review findings in `Detectado` during playtests and code review
+- [ ] Move analyzed items to `Estudiado` as AI-written task formulations that can become milestone work
+- [ ] Promote concrete fixes from `Estudiado` into this roadmap as actionable milestones or tasks
+- [ ] Record resolved items in [DONE.md](DONE.md) instead of keeping an `Implementado` section in notes
 
-**Accepts:** a tester can launch from menu, complete a full win-condition run, and see closing stats.
+**Accepts:** a tester can record a finding, move it through analysis, and see the resulting action appear in the roadmap without losing the original note.
 
 ---
 

@@ -64,6 +64,7 @@ _Files marked (M#) do not exist yet; they are created in the listed milestone._
 ## References
 
 - **Project design & decisions:** [README.md](README.md) — design decisions, behavior specs, and project-specific notes
+- **Notes:** [NOTES.md](NOTES.md) — observations, triage, and resolved items
 - **Roadmap:** [ROADMAP.md](ROADMAP.md) — completed milestones and the next feature to build
 - **How to ship:** [WORKFLOW.md](WORKFLOW.md) — commit, branching, and testing rules
 - **Past work:** [DONE.md](DONE.md) — consult only when prior context is relevant

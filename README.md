@@ -135,13 +135,14 @@ If you prefer plain `pip`, install `pygame` manually and run `python main.py`.
 
 ## Current Status
 
-Milestones 1-7 are implemented: score tracking, post-combat flow, non-combat actions, fleeing, the shop shell, active upgrade/consumable effects, and tiered enemy progression. Milestone 8 is next, which focuses on menu/polish and full-run feedback.
+Milestones 1-7 are implemented: score tracking, post-combat flow, non-combat actions, fleeing, the shop shell, active upgrade/consumable effects, and tiered enemy progression. Milestone 8 is now a notes-and-triage pass driven by [NOTES.md](NOTES.md); final polish work will be promoted from those notes into [ROADMAP.md](ROADMAP.md).
 
 ---
 
 ## References
 
 - **Agent guide:** [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md) — conventions, structure, and execution notes
+- **Notes:** [NOTES.md](NOTES.md) — observations, triage, and resolved items
 - **Feature roadmap:** [ROADMAP.md](ROADMAP.md) — completed milestones and the next feature to build
 - **Workflow:** [WORKFLOW.md](WORKFLOW.md) — branching, commits, and shipping rules
 - **Completed work:** [DONE.md](DONE.md) — archive of finished tasks
