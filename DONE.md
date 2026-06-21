@@ -2,6 +2,13 @@
 
 Completed tasks. Archived for reference only; consult when prior work is specifically relevant to your current task.
 
+## Target Selection Visibility
+
+- [x] Hidden enemy compartments now use `Targeting: Unknown compartment`
+- [x] Target names are derived from the same effective visibility rule used to render compartments
+- [x] Revealed compartments and global reveal effects show the real name immediately
+- [x] Disabling a temporary global reveal hides names again unless the compartment was permanently revealed
+
 ## Title Screen and Run Reset
 
 - [x] The game now opens on a title screen instead of starting combat immediately

@@ -671,8 +671,13 @@ while running:
         if game_state.selected_compartment and game_state.is_player_turn():
             select_rect = compartment_screen_rect(enemy, game_state.selected_compartment)
             pygame.draw.rect(screen, (255, 255, 0), select_rect, 2)
+            target_name = (
+                game_state.selected_compartment.name
+                if enemy.is_compartment_visible(game_state.selected_compartment)
+                else "Unknown compartment"
+            )
             target_text = small_font.render(
-                f"Targeting: {game_state.selected_compartment.name}", True, (255, 255, 0)
+                f"Targeting: {target_name}", True, (255, 255, 0)
             )
             screen.blit(target_text, (WINDOW_WIDTH // 2 - target_text.get_width() // 2, 60))
 

@@ -70,13 +70,15 @@ class Ship(pygame.sprite.Sprite):
             compartment = Compartment(name, system_type, row, col)
             self.compartments.append(compartment)
 
+    def is_compartment_visible(self, compartment):
+        return compartment.revealed or self.force_reveal
+
     def _render_compartments(self):
         self.image.fill((20, 20, 40))
         for compartment in self.compartments:
             x = compartment.col * CELL_SIZE
             y = compartment.row * CELL_SIZE
-            visible = compartment.revealed or self.force_reveal
-            if not visible:
+            if not self.is_compartment_visible(compartment):
                 color = HIDDEN_COMPARTMENT_COLOR
             else:
                 base_color = SYSTEM_COLORS[compartment.system_type]

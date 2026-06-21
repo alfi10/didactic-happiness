@@ -98,6 +98,27 @@ def test_force_reveal_default_false():
     assert enemy.force_reveal is False
 
 
+def test_hidden_enemy_compartment_is_not_visible():
+    enemy = Enemy(0, 0)
+    assert enemy.is_compartment_visible(enemy.compartments[0]) is False
+
+
+def test_revealed_enemy_compartment_is_visible():
+    enemy = Enemy(0, 0)
+    target = enemy.compartments[0]
+    target.revealed = True
+    assert enemy.is_compartment_visible(target) is True
+
+
+def test_force_reveal_visibility_tracks_current_state():
+    enemy = Enemy(0, 0)
+    target = enemy.compartments[0]
+    enemy.force_reveal = True
+    assert enemy.is_compartment_visible(target) is True
+    enemy.force_reveal = False
+    assert enemy.is_compartment_visible(target) is False
+
+
 def test_force_reveal_overrides_render_without_changing_state():
     enemy = Enemy(0, 0)
     enemy.force_reveal = True

@@ -9,8 +9,6 @@ Use this file to capture what you observe while playing, reviewing, or testing. 
 
 ## Detectado
 
-- [ ] Demasiada información al seleccionar "Objetivo":
-  Al seleccionar un compartimento de la nave enemiga, aparece la información del módulo seleccionado, a pesar de que debería estar oculto.
 - [ ] Animación de finalización de combate:
   Añadir tanto al derrotar como al ser derrotado una animación visual antes de la visualización final de datos.
 - [ ] Acciones post combate:
