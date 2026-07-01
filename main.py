@@ -3,15 +3,12 @@ import sys
 
 import pygame
 
-from src.entities import Player, Enemy, CELL_SIZE, SHIP_SIZE
-from src.enemies import spawn_enemy_for_combat
-from src.game_state import GameState, Screen
-from src.combat import CombatSystem
+from src.entities import CELL_SIZE, SHIP_SIZE
+from src.game_state import Screen
+from src.game_controller import GameController
 from src.intel import format_enemy_hp, display_hp_ratio, hp_visible
-from src.run_state import RunState
-from src.compartments import DESTROY_BONUS_DAMAGE, SystemType
 from src.non_combat import ACTIONS as NON_COMBAT_ACTIONS
-from src.shop import SHOP_ITEMS, use_repair_kit, use_morale_broadcast, use_sensor_ping
+from src.shop import SHOP_ITEMS
 
 pygame.init()
 
@@ -147,10 +144,7 @@ def leave_shop_button_rect():
 
 
 def combat_consumable_items():
-    return [
-        item for item in SHOP_ITEMS
-        if item.kind == "consumable" and run_state.consumables.get(item.name, 0) > 0
-    ]
+    return controller.combat_consumable_items()
 
 
 def combat_consumable_button_rects(items):
@@ -173,16 +167,31 @@ font = pygame.font.Font(None, 36)
 small_font = pygame.font.Font(None, 24)
 
 sprites = pygame.sprite.Group()
-player = Player(PLAYER_X, SHIP_Y)
-enemy = spawn_enemy_for_combat(0, ENEMY_X, SHIP_Y)
+controller = GameController(player_pos=(PLAYER_X, SHIP_Y), enemy_pos=(ENEMY_X, SHIP_Y))
+player = controller.player
+enemy = controller.enemy
 sprites.add(player)
 sprites.add(enemy)
 
-game_state = GameState()
-combat = CombatSystem()
-run_state = RunState()
+game_state = controller.game_state
+run_state = controller.run_state
 debug_auto_kill = False
 options_message_visible = False
+
+
+def sync_controller_refs():
+    global player, enemy, game_state, run_state
+    player = controller.player
+    enemy = controller.enemy
+    game_state = controller.game_state
+    run_state = controller.run_state
+
+
+def sync_controller_refs_and_sprites(old_enemy=None):
+    sync_controller_refs()
+    if old_enemy is not None and enemy is not old_enemy:
+        sprites.remove(old_enemy)
+        sprites.add(enemy)
 
 def get_compartment_at(ship, mouse_x, mouse_y):
     if not ship.rect.collidepoint(mouse_x, mouse_y):
@@ -324,158 +333,59 @@ def draw_flee_button(surface, game_state):
     )
 
 def perform_flee():
-    if not (
-        game_state.is_player_turn()
-        and game_state.turn_count >= 2
-        and player.alive()
-        and enemy.alive()
-        and not game_state.combat_resolution_active()
-    ):
-        return
-    run_state.register_flee()
-    game_state.last_combat_result = "flee"
-    game_state.clear_selection()
-    game_state.clear_enemy_turn()
-    game_state.screen = Screen.COMBAT_RESULT
+    controller.flee()
 
 def perform_fire():
-    if not (
-        game_state.is_player_turn()
-        and game_state.selected_compartment
-        and player.alive()
-        and enemy.alive()
-        and not game_state.combat_resolution_active()
-    ):
-        return
-    if debug_auto_kill and game_state.debug_mode:
-        debug_auto_hit()
-        return
-    hit, _ = combat.fire(game_state.selected_compartment, enemy, player)
-    if hit:
-        game_state.register_hit(game_state.selected_compartment, current_time)
-    game_state.clear_selection()
-    game_state.next_turn()
-    target = combat.pick_enemy_target(enemy, player)
-    game_state.start_enemy_turn(target, current_time)
+    controller.fire_selected(current_time, debug_auto_kill=debug_auto_kill)
 
 
 def debug_auto_hit():
-    if not (
-        game_state.is_player_turn()
-        and game_state.debug_mode
-        and player.alive()
-        and enemy.alive()
-        and not game_state.combat_resolution_active()
-    ):
-        return
-    target = game_state.selected_compartment
-    if target is None or target not in enemy.compartments:
-        target = next((c for c in enemy.compartments if c.active), None)
-    if target is None:
-        return
-    target.revealed = True
-    target.hp = 0
-    target.active = False
-    bonus = DESTROY_BONUS_DAMAGE[target.system_type]
-    damage = CombatSystem.BASE_DAMAGE + bonus
-    enemy.take_damage(damage)
-    enemy.change_morale(-CombatSystem.HIT_MORALE_PENALTY)
-    if target.system_type == SystemType.CREW:
-        enemy.change_morale(-CombatSystem.CREW_DESTROYED_MORALE_PENALTY)
-    enemy.refresh()
-    player.change_morale(CombatSystem.DESTROY_ENEMY_MORALE_REWARD)
-    game_state.register_hit(target, current_time)
-    game_state.clear_selection()
-    game_state.next_turn()
-    e_target = combat.pick_enemy_target(enemy, player)
-    game_state.start_enemy_turn(e_target, current_time)
+    controller.debug_auto_hit(current_time)
 
 
 def apply_debug_to_ships():
-    enemy.force_reveal = game_state.debug_mode
-    enemy.refresh()
+    controller.apply_debug_to_ships()
 
 
 def start_new_run():
-    global player, enemy, game_state, run_state, debug_auto_kill, options_message_visible
-    debug_mode = game_state.debug_mode
+    global debug_auto_kill, options_message_visible
     sprites.empty()
-    player = Player(PLAYER_X, SHIP_Y)
-    enemy = spawn_enemy_for_combat(0, ENEMY_X, SHIP_Y)
+    controller.start_new_run()
+    sync_controller_refs()
     sprites.add(player, enemy)
-    run_state = RunState()
-    game_state = GameState()
-    game_state.debug_mode = debug_mode
-    game_state.reset_for_combat()
     debug_auto_kill = False
     options_message_visible = False
-    apply_debug_to_ships()
 
 
 def start_next_combat():
-    global enemy
     sprites.remove(enemy)
-    enemy = spawn_enemy_for_combat(run_state.combat_count, ENEMY_X, SHIP_Y)
+    controller.start_next_combat()
+    sync_controller_refs()
     sprites.add(enemy)
-    if game_state.debug_mode or run_state.scan_next_enemy:
-        enemy.force_reveal = True
-        enemy.refresh()
-    run_state.scan_next_enemy = False
-    game_state.reset_for_combat()
-    game_state.last_combat_result = "win"
-    penalty = run_state.consume_pending_morale_penalty()
-    if penalty:
-        player.change_morale(-penalty)
 
 
 def complete_non_combat_action():
-    if run_state.combat_count % 5 == 0:
-        game_state.screen = Screen.SHOP
-    else:
-        start_next_combat()
+    old_enemy = enemy
+    controller.complete_non_combat_action()
+    sync_controller_refs_and_sprites(old_enemy)
 
 
 def destroyed_player_compartments():
-    return [compartment for compartment in player.compartments if not compartment.active]
+    return controller.destroyed_player_compartments()
 
 
 def get_item_stacks(item):
-    if item.kind == "upgrade":
-        return run_state.owned_upgrades.get(item.name, 0)
-    return run_state.consumables.get(item.name, 0)
+    return controller.get_item_stacks(item)
 
 def can_buy(item):
-    stacks = get_item_stacks(item)
-    return (run_state.score >= item.cost and
-            (item.max_stacks is None or stacks < item.max_stacks))
+    return controller.can_buy(item)
 
 def buy_item(item):
-    if not can_buy(item):
-        return
-    run_state.score -= item.cost
-    item.apply(run_state, player)
-    if item.kind == "upgrade":
-        run_state.owned_upgrades[item.name] = get_item_stacks(item) + 1
-    else:
-        run_state.consumables[item.name] = get_item_stacks(item) + 1
+    controller.buy_item(item)
 
 
 def use_combat_consumable(item_name):
-    if not (
-        game_state.screen == Screen.COMBAT
-        and game_state.is_player_turn()
-        and player.alive()
-        and enemy.alive()
-        and not game_state.combat_resolution_active()
-    ):
-        return False
-    if item_name == "Repair Kit":
-        return use_repair_kit(run_state, player)
-    if item_name == "Morale Broadcast":
-        return use_morale_broadcast(run_state, player)
-    if item_name == "Sensor Ping":
-        return use_sensor_ping(run_state, enemy)
-    return False
+    return controller.use_combat_consumable(item_name)
 
 
 def handle_combat_consumable_click(mouse_x, mouse_y):
@@ -738,7 +648,7 @@ while running:
                     elif fire_button_rect().collidepoint(mouse_x, mouse_y) and game_state.selected_compartment:
                         perform_fire()
                     elif hovered_compartment:
-                        game_state.select(hovered_compartment)
+                        controller.select_compartment(hovered_compartment)
                 if (
                     game_state.debug_mode
                     and not game_state.combat_resolution_active()
@@ -747,18 +657,16 @@ while running:
                     debug_auto_kill = not debug_auto_kill
             elif game_state.screen == Screen.COMBAT_RESULT:
                 if continue_button_rect().collidepoint(mouse_x, mouse_y):
-                    game_state.screen = Screen.NON_COMBAT_ACTION
+                    controller.continue_from_combat_result()
             elif game_state.screen == Screen.NON_COMBAT_ACTION:
                 for action, rect in zip(NON_COMBAT_ACTIONS, action_button_rects()):
                     if (
                         rect.collidepoint(mouse_x, mouse_y)
                         and action.is_available(run_state, player)
                     ):
-                        if action.key == "field_repair":
-                            game_state.screen = Screen.FIELD_REPAIR
-                        else:
-                            action.apply(run_state, player)
-                            complete_non_combat_action()
+                        old_enemy = enemy
+                        controller.choose_non_combat_action(action.key)
+                        sync_controller_refs_and_sprites(old_enemy)
                         break
             elif game_state.screen == Screen.FIELD_REPAIR:
                 destroyed = destroyed_player_compartments()
@@ -766,16 +674,12 @@ while running:
                     destroyed, field_repair_button_rects(destroyed)
                 ):
                     if rect.collidepoint(mouse_x, mouse_y):
-                        field_repair = next(
-                            action
-                            for action in NON_COMBAT_ACTIONS
-                            if action.key == "field_repair"
-                        )
-                        if field_repair.apply(run_state, player, compartment):
-                            complete_non_combat_action()
+                        old_enemy = enemy
+                        controller.apply_field_repair(compartment)
+                        sync_controller_refs_and_sprites(old_enemy)
                         break
                 if field_repair_back_rect().collidepoint(mouse_x, mouse_y):
-                    game_state.screen = Screen.NON_COMBAT_ACTION
+                    controller.back_from_field_repair()
             elif game_state.screen == Screen.SHOP:
                 for item, (card, buy) in zip(SHOP_ITEMS, shop_row_rects()):
                     if buy.collidepoint(mouse_x, mouse_y):
@@ -796,31 +700,9 @@ while running:
         and game_state.is_enemy_turn()
         and game_state.enemy_target is not None
     ):
-        if game_state.debug_mode or game_state.enemy_ready_to_fire(current_time):
-            target = game_state.enemy_target
-            hit, _ = combat.fire(target, player, enemy)
-            if hit:
-                game_state.register_hit(target, current_time)
-            game_state.clear_enemy_turn()
-            game_state.next_turn()
-            game_state.increment_turn_count()
-            player.drift_morale()
-            enemy.drift_morale()
+        controller.resolve_enemy_turn(current_time, force=game_state.debug_mode)
 
-    if game_state.screen == Screen.COMBAT:
-        if game_state.combat_resolution_active():
-            game_state.complete_combat_resolution(current_time)
-        elif not enemy.alive():
-            run_state.combat_count += 1
-            run_state.award_combat_score(player.hp, player.max_hp, enemy.score_reward)
-            game_state.last_combat_result = "win"
-            if run_state.is_complete():
-                destination = Screen.VICTORY
-            else:
-                destination = Screen.COMBAT_RESULT
-            game_state.start_combat_resolution(destination, current_time)
-        elif not player.alive():
-            game_state.start_combat_resolution(Screen.GAME_OVER, current_time)
+    controller.update_combat(current_time)
 
     sprites.update()
 

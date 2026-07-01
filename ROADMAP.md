@@ -149,6 +149,53 @@ Full design rationale lives in the approved plan at `~/.claude/plans/i-want-to-c
 
 ---
 
+## Milestone 9 — Game Controller & Headless Simulation
+
+**Goal:** decouple game actions from the Pygame loop and run complete games without human input or a visible window.
+
+- [x] Create `src/game_controller.py` as the owner of `Player`, `Enemy`, `GameState`, `RunState`, and combat/shop/non-combat transitions
+- [x] Represent player/bot intent through reusable actions such as select target, fire, flee, continue, choose non-combat action, buy item, leave shop, and use consumable
+- [x] Add snapshots that expose enough state for bots, tests, logs, and debugging without reaching into Pygame UI code
+- [x] Refactor `main.py` so rendering and input dispatch call the controller instead of owning game rules directly
+- [ ] Create `scripts/simulate_runs.py` to run seeded headless batches and report win rate, average combats, average score, deaths before shop, flee rate, shop spending, and crash count
+- [ ] Persist failing seeds and minimal action traces for replay/debugging
+
+**Accepts:** `uv run python scripts/simulate_runs.py --runs 100 --seed 42` can complete runs without opening the game window and prints aggregate metrics.
+
+---
+
+## Milestone 10 — Bot Playtesting & Exploratory Validation
+
+**Goal:** add automated player profiles that explore the game and surface balance or flow problems.
+
+- [ ] Create bot interfaces that consume controller snapshots and return controller actions
+- [ ] Implement `RandomBot` for crash/state-space exploration
+- [ ] Implement `GreedyBot` for straightforward target selection and basic survival choices
+- [ ] Implement `SurvivalBot` to prioritize hull, morale, field repair, consumables, and fleeing
+- [ ] Implement `ScoreRushBot` to minimize spending and race toward 120 Score
+- [ ] Implement `ShopBot` to stress upgrades, consumables, affordability, and stack limits
+- [ ] Generate structured playtest reports that can be copied into `NOTES.md` under `Detectado`
+- [ ] Promote repeated findings into `ROADMAP.md` or `DONE.md` through the Milestone 8 triage loop
+
+**Accepts:** running each bot across fixed seeds produces reproducible reports with no crashes and enough data to compare balance outcomes between bot strategies.
+
+---
+
+## Milestone 11 — Visual/UI Automation Runner
+
+**Goal:** validate the Pygame experience itself: screens, clicks, visual state, and regressions that logic-only tests cannot see.
+
+- [ ] Create a Pygame UI runner that can drive the game with synthetic events or controller-assisted clicks
+- [ ] Support dummy/headless execution for CI-style smoke tests
+- [ ] Support screenshot capture at key screens: title, combat, combat result, non-combat action, field repair, shop, victory, and game over
+- [ ] Add UI smoke scenarios for start run, select target, fire, flee, continue, choose action, buy item, leave shop, and use consumable
+- [ ] Add assertions for screen transitions, clickable button availability, and absence of blocked states
+- [ ] Store or compare screenshots for visual regression triage where practical
+
+**Accepts:** a visual smoke run can navigate the main loop through combat result, non-combat action, shop cadence, and terminal screens without human input.
+
+---
+
 ## Out of Scope (deferred)
 
 - Procedural map / node-based progression / sector layouts
